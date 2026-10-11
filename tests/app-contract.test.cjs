@@ -13,6 +13,10 @@ const required = [
   ['row-level security scoped soft delete', /\.update\(\{deleted_at:new Date\(\)\.toISOString\(\),deleted_reason:/],
   ['new purchases eligible for forecast training', /forecast_eligible:true/],
   ['receipt total discrepancy is checked', /receiptTotal[\s\S]*?itemsTotal[\s\S]*?confirm\(/],
+  ['receipt difference is allocated proportionally and rounding remainder assigned', /receiptTotal[\s\S]*?difference\*x\.amount\/itemsTotal[\s\S]*?difference-allocated/ .test(html)],
+  ['receipt reconciliation fields are persisted on purchase lines', /item_subtotal:x\.amount[\s\S]*receipt_total:receiptTotal[\s\S]*receipt_adjustment:receiptTotal/ .test(html)],
+  ['CSV backup includes receipt reconciliation fields', /'item_subtotal','receipt_total','receipt_items_total','receipt_adjustment','receipt_adjustment_type'/.test(html)],
+
   ['receipt mismatch is retained in note', /Receipt total '\+money\(receiptTotal\)/],
   ['forecast engine uses return/refund adjustments', /EMSForecast\.predict\(purchases,adjustments\)/],
   ['manual usage form not exposed as a visible tab', !/data-view="usage"|id="useTab"/.test(html)],
