@@ -24,7 +24,7 @@ A mobile-first, personal household purchase and expense tracker. The project is 
 - `forecast_eligible` is a non-null boolean. New purchase records set it to true; older rows default to false and are not used to train new predictions.
 - The forecast engine aggregates same-day lines, uses median repeat intervals, and normalizes only known compatible units (kg/g and litre/ml). It does not convert packages such as bottle, pack, or piece into mass/volume.
 - Forecasts need at least two different purchase dates for an item and become more reliable with more history.
-- Purchase history can be searched, edited, and deleted. Deleting is permanent in this build; a recycle bin/restore flow is still on the roadmap.
+- Purchase history can be searched and edited. Deletion moves records to a recycle bin; restoration is available within the selected 7-, 30-, or 90-day retention period. Expired records are only permanently removed after a separate confirmed cleanup action. That cleanup flow has not yet been tested against live records.
 
 ## Development and checks
 
