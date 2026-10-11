@@ -24,4 +24,15 @@ assert.equal(predict([
  {item_name:'Oil',purchase_date:'2026-01-10',quantity:1,unit:'litre',amount:100,forecast_eligible:true}
 ]).length, 0, 'bottle and litre units are not silently combined');
 assert.equal(predict(rows.map(x => ({...x,forecast_eligible:false}))).length, 0, 'historical purchases are excluded from training');
-console.log('EMS forecast tests passed: 12 assertions');
+const identityRows = [
+ {item_name:'Milk',brand:'A Dairy',variant:'Full Cream',pack_size:'1 L pouch',purchase_date:'2026-01-01',quantity:1,unit:'litre',amount:70,forecast_eligible:true},
+ {item_name:'Milk',brand:'A Dairy',variant:'Full Cream',pack_size:'1 L pouch',purchase_date:'2026-01-11',quantity:1,unit:'litre',amount:72,forecast_eligible:true},
+ {item_name:'Milk',brand:'B Dairy',variant:'Toned',pack_size:'500 ml pouch',purchase_date:'2026-01-01',quantity:500,unit:'ml',amount:30,forecast_eligible:true},
+ {item_name:'Milk',brand:'B Dairy',variant:'Toned',pack_size:'500 ml pouch',purchase_date:'2026-01-11',quantity:500,unit:'ml',amount:31,forecast_eligible:true}
+];
+const identityPredictions = predict(identityRows);
+assert.equal(identityPredictions.length, 2, 'brands, variants and pack sizes remain distinct');
+assert.ok(identityPredictions.some(x=>x.brand==='A Dairy'&&x.variant==='Full Cream'&&x.pack_size==='1 L pouch'), 'product identity is carried into forecast results');
+assert.ok(identityPredictions.some(x=>x.brand==='B Dairy'&&x.variant==='Toned'&&x.pack_size==='500 ml pouch'), 'second identity remains separately forecast');
+
+console.log('EMS forecast tests passed: 15 assertions');
