@@ -18,7 +18,7 @@
     const groups=new Map();
     (purchases||[]).forEach(p=>{
       const name=String(p.item_name||'').trim();
-      if(!name||!p.purchase_date)return;
+      if(!name||!p.purchase_date||p.forecast_eligible!==true)return;
       const n=normalize(p.unit,p.quantity),key=name.toLocaleLowerCase()+'|'+n.key;
       if(!groups.has(key))groups.set(key,{name,unit:n.unit,events:new Map()});
       const g=groups.get(key),date=String(p.purchase_date);
