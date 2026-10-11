@@ -73,4 +73,7 @@ jobs:
           test -s sw.js
           test -s icons/ems.svg
           test -s install.html
-          echo "Required PWA files exist"
+          test -s setup.sql
+          test -s README.md
+          test -s tests/app-contract.test.cjs
+          echo "Required app, setup, documentation and test files exist"
