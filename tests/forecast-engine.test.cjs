@@ -35,4 +35,17 @@ assert.equal(identityPredictions.length, 2, 'brands, variants and pack sizes rem
 assert.ok(identityPredictions.some(x=>x.brand==='A Dairy'&&x.variant==='Full Cream'&&x.pack_size==='1 L pouch'), 'product identity is carried into forecast results');
 assert.ok(identityPredictions.some(x=>x.brand==='B Dairy'&&x.variant==='Toned'&&x.pack_size==='500 ml pouch'), 'second identity remains separately forecast');
 
-console.log('EMS forecast tests passed: 15 assertions');
+const adjustedPredictions = predict([
+ {id:101,item_name:'Rice',purchase_date:'2026-02-01',quantity:5,unit:'kg',amount:100,forecast_eligible:true},
+ {id:102,item_name:'Rice',purchase_date:'2026-02-11',quantity:5,unit:'kg',amount:100,forecast_eligible:true}
+],[
+ {purchase_id:102,quantity_returned:2,refund_amount:40,physically_returned:true}
+]);
+assert.equal(adjustedPredictions.length,1,'adjusted purchase history still forecasts across two dates');
+assert.equal(adjustedPredictions[0].qty,4,'physical returns reduce forecast quantity');
+assert.equal(adjustedPredictions[0].cost,80,'refunds reduce forecast purchase cost');
+assert.equal(predict([
+ {id:201,item_name:'Oil',purchase_date:'2026-02-01',quantity:1,unit:'litre',amount:100,forecast_eligible:true},
+ {id:202,item_name:'Oil',purchase_date:'2026-02-11',quantity:1,unit:'litre',amount:100,forecast_eligible:true}
+],[{purchase_id:202,quantity_returned:0,refund_amount:100,physically_returned:false}])[0].cost,50,'refund-only adjustment changes spend but does not remove quantity');
+console.log('EMS forecast tests passed: 19 assertions');
