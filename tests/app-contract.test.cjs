@@ -13,7 +13,7 @@ const required = [
   ['new purchases eligible for forecast training', /forecast_eligible:true/],
   ['receipt total discrepancy is checked', /receiptTotal[\s\S]*?itemsTotal[\s\S]*?confirm\(/],
   ['receipt mismatch is retained in note', /Receipt total '\+money\(receiptTotal\)/],
-  ['forecast engine used by dashboard', /EMSForecast\.predict\(purchases\)/],
+  ['forecast engine uses return/refund adjustments', /EMSForecast\.predict\(purchases,adjustments\)/],
   ['manual usage form not exposed as a visible tab', !/data-view="usage"|id="useTab"/.test(html)],
   ['stock view does not claim untracked consumption or stock levels', !/Avg use:|suggested order:|Record usage to unlock/.test(html)],
   ['purchase-pattern screen uses learned forecast', /const pattern=pred\.find/.test(html)],
