@@ -19,8 +19,9 @@
     (purchases||[]).forEach(p=>{
       const name=String(p.item_name||'').trim();
       if(!name||!p.purchase_date||p.forecast_eligible!==true)return;
-      const n=normalize(p.unit,p.quantity),key=name.toLocaleLowerCase()+'|'+n.key;
-      if(!groups.has(key))groups.set(key,{name,unit:n.unit,events:new Map()});
+      const n=normalize(p.unit,p.quantity),brand=String(p.brand||'').trim(),variant=String(p.variant||'').trim(),pack=String(p.pack_size||'').trim();
+      const key=[name.toLocaleLowerCase(),brand.toLocaleLowerCase(),variant.toLocaleLowerCase(),pack.toLocaleLowerCase(),n.key].join('|');
+      if(!groups.has(key))groups.set(key,{name,brand,variant,pack_size:pack,unit:n.unit,events:new Map()});
       const g=groups.get(key),date=String(p.purchase_date);
       if(!g.events.has(date))g.events.set(date,{date,qty:0,cost:0});
       const e=g.events.get(date);e.qty+=Math.max(0,n.quantity);e.cost+=Math.max(0,Number(p.amount)||0);
@@ -39,7 +40,7 @@
       const last=rows[rows.length-1],next=new Date(last.date+'T12:00:00');
       next.setDate(next.getDate()+Math.max(1,Math.round(gap)));
       const nextDate=next.getFullYear()+'-'+String(next.getMonth()+1).padStart(2,'0')+'-'+String(next.getDate()).padStart(2,'0');
-      out.push({name:g.name,unit:g.unit,count:rows.length,gap,qty,cost,dailyCost:cost/gap,weeklyCost:cost/gap*7,monthlyCost:cost/gap*30,yearlyCost:cost/gap*365,last:last.date,next:nextDate,confidence:rows.length>=6?'Higher':rows.length>=4?'Moderate':'Early'});
+      out.push({name:g.name,brand:g.brand,variant:g.variant,pack_size:g.pack_size,unit:g.unit,count:rows.length,gap,qty,cost,dailyCost:cost/gap,weeklyCost:cost/gap*7,monthlyCost:cost/gap*30,yearlyCost:cost/gap*365,last:last.date,next:nextDate,confidence:rows.length>=6?'Higher':rows.length>=4?'Moderate':'Early'});
     });
     return out.sort((a,b)=>a.next.localeCompare(b.next));
   }
