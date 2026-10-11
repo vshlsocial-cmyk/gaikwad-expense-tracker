@@ -11,8 +11,10 @@ This branch adds the first safe, reviewable PWA layer to the existing EMS site.
 - Removed visible manual usage-recording controls from the main workflow. Legacy usage records were cleared from the connected database for a fresh start.
 - Added `phase13_forecast_eligibility.sql`; applied the additive migration to the connected database. Existing purchase history was cleared; future purchases are explicitly marked eligible for forecasting.
 - Added `install.html` with Android installation instructions.
-- Added optional brand, variant, and descriptive pack-size fields to purchase entry/edit/history/CSV. Forecast groups now keep those identities separate, and pack descriptions are never converted into weight or volume automatically.
-- Added `phase14_product_identity.sql`, an additive migration for the three optional product identity columns. It does not delete or rewrite purchase rows.
+- Added optional brand, variant, and descriptive pack-size fields to purchase entry/edit/history/CSV. Forecast groups keep those identities separate, and pack descriptions are never converted into weight or volume automatically.
+- Added additive product-identity migration `phase14_product_identity.sql`.
+- Added linked return/refund records, cumulative database safeguards, recycle-bin restore/retention controls, and CSV backup of active/deleted purchases plus adjustments.
+- Forecasts now account for physical returned quantity and refunds when calculating typical quantities and costs; regression tests cover both return-and-refund and refund-only cases.
 
 ## Test plan before merge
 1. Confirm GitHub Pages preview serves `manifest.webmanifest`, `sw.js`, `icons/ems.svg`, and `install.html` with status 200.
@@ -22,6 +24,6 @@ This branch adds the first safe, reviewable PWA layer to the existing EMS site.
 5. Test an update to the app and confirm the new shell cache replaces the old one.
 
 ## Explicit limitations
-This branch does not replace the production database schema and does not add unverified SQL migrations. It does not implement live retailer price/stock/delivery comparison, automatic checkout, native APK packaging, JSON restore, or fully normalized product/brand/pack identity. The forecast-eligibility migration has been applied to the connected Supabase project. Database row counts were verified as zero for purchases and usage after cleanup. Family-member and shop lists were retained as preferences. Those features need separate implementation and test work.
+The app remains a static PWA backed by Supabase. It does not implement live retailer price/stock/delivery comparison, automatic checkout, native APK packaging, JSON restore, or receipt-level persistence with discount/fee allocation. A receipt-total mismatch warning exists but does not allocate discounts or fees. The connected Supabase project has the purchase-adjustment safeguards; purchase and usage counts were verified as zero after the fresh-start reset, while family-member and shop lists were retained. Real-browser smoke tests and device installation remain unverified.
 
 **Deployment safety:** This branch is still not the live `main` branch. Static CI passes, but live browser tests remain outstanding; do not claim full completion until those checks pass.
