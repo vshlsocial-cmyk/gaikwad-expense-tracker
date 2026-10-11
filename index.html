@@ -254,9 +254,13 @@ $('comparePlan').onclick=()=>{
  if(!wanted.length){msg('planMsg','Enter at least one item, one per line.','error');return}
  const rows=[];
  for(const query of wanted){
-  const q=query.toLocaleLowerCase();
-  const matches=purchases.filter(p=>String(p.item_name||'').trim().toLocaleLowerCase()===q);
-  if(!matches.length){rows.push('<div class="linecard"><strong>'+esc(query)+'</strong><p class="small">No exact item-name match in your purchase history. Add a purchase first or check spelling.</p></div>');continue}
+  const norm=v=>String(v||'').toLocaleLowerCase().normalize('NFKD').replace(/[\\u0300-\\u036f]/g,'').replace(/[^a-z0-9]+/g,' ').trim();
+  const q=norm(query), exact=purchases.filter(p=>norm(p.item_name)===q);
+  const candidates=exact.length?exact:purchases.filter(p=>{const n=norm(p.item_name);return n.includes(q)||q.includes(n)}).filter(p=>norm(p.item_name).length>1);
+  const identities=[...new Set(candidates.map(p=>String(p.item_name||'').trim()))];
+  if(!candidates.length){rows.push('<div class="linecard"><strong>'+esc(query)+'</strong><p class="small">No matching item in purchase history. Add a purchase first or check spelling.</p></div>');continue}
+  if(!exact.length&&identities.length!==1){rows.push('<div class="linecard"><strong>'+esc(query)+'</strong><p class="small">Possible matches — review the name; EMS will not choose a brand or variant automatically.</p>'+identities.map(n=>'<div class="item"><div>'+esc(n)+'</div></div>').join('')+'</div>');continue}
+  const matches=candidates;
   const byShop=new Map();
   matches.forEach(p=>{
    const shop=String(p.source||'Shop not recorded'),n=EMSForecast.normalize(p.unit,p.quantity);
