@@ -81,7 +81,10 @@ $('savePassword').onclick=async()=>{const a=$('newPassword').value,b=$('confirmP
 $('signOut').onclick=()=>db.auth.signOut();
 async function openApp(){$('auth').classList.add('hidden');$('main').classList.remove('hidden');$('signOut').classList.remove('hidden');await load()}
 async function load(){
- const [p,t,a,u,m,s]=await Promise.all([\n db.from('purchases').select('*').is('deleted_at',null).order('purchase_date',{ascending:false}),\n db.from('purchases').select('*').not('deleted_at','is',null).order('deleted_at',{ascending:false}),\n db.from('purchase_adjustments').select('*').order('adjustment_date',{ascending:false}),
+ const [p,t,a,u,m,s]=await Promise.all([
+ db.from('purchases').select('*').is('deleted_at',null).order('purchase_date',{ascending:false}),
+ db.from('purchases').select('*').not('deleted_at','is',null).order('deleted_at',{ascending:false}),
+ db.from('purchase_adjustments').select('*').order('adjustment_date',{ascending:false}),
  db.from('purchases').select('*').order('purchase_date',{ascending:false}),
  db.from('item_usage').select('*').order('usage_date',{ascending:false}),
  db.from('family_members').select('*').order('name'),
