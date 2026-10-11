@@ -18,7 +18,7 @@ Date: 2026-10-11
 - No automated browser testing is claimed.
 
 ## Known product scope gaps
-Receipt total reconciliation, return/refund linkage, recycle-bin/restore, PDF exports, saved delivery locations, verified retailer comparisons, and distinct brand/variant/pack-size product identity are not complete yet. This report is intentionally honest about what remains.
+Receipt-total reconciliation, return/refund linkage, recycle-bin/restore, saved delivery locations, verified retailer comparisons, and distinct brand/variant/pack-size product identity are not complete yet. Basic print-to-PDF for the current report is present; polished multi-report PDF exports remain outstanding. This report is intentionally honest about what remains.
 
 ## Release decision
 Keep the PR in staging until current CI is green and basic browser smoke tests pass. No paid infrastructure, paid branch or paid service has been used.
