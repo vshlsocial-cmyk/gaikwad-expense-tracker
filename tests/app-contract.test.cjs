@@ -17,8 +17,8 @@ const required = [
   ['row-level security scoped soft delete', /\.update\(\{deleted_at:new Date\(\)\.toISOString\(\),deleted_reason:/],
   ['new purchases eligible for forecast training', /forecast_eligible:true/],
   ['receipt total discrepancy is checked', /receiptTotal[\s\S]*?itemsTotal[\s\S]*?confirm\(/],
-  ['receipt difference is allocated proportionally and rounding remainder assigned', /difference\*x\.amount\/itemsTotal/.test(html) && /difference-allocated/.test(html)],
-  ['receipt reconciliation fields are persisted on purchase lines', /item_subtotal:x\.amount[\s\S]*receipt_total:receiptTotal[\s\S]*receipt_adjustment:receiptTotal/ .test(html)],
+  ['receipt allocation engine is loaded and used', /receipt-engine\.js/.test(html) && /EMSReceipt\.allocate\(lines,receiptTotal\)/.test(html)],
+  ['receipt reconciliation fields are persisted on purchase lines', /item_subtotal:x\.amount-x\.receipt_adjustment[\s\S]*receipt_total:receiptTotal[\s\S]*receipt_adjustment:receiptTotal/ .test(html)],
   ['CSV backup includes receipt reconciliation fields', /'item_subtotal','receipt_total','receipt_items_total','receipt_adjustment','receipt_adjustment_type'/.test(html)],
 
   ['receipt reconciliation details are persisted on each purchase line', /receipt_total:receiptTotal[\s\S]*receipt_items_total:receiptTotal===null\?null:itemsTotal/],
