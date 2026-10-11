@@ -14,7 +14,9 @@ const required = [
   ['receipt total discrepancy is checked', /receiptTotal[\s\S]*?itemsTotal[\s\S]*?confirm\(/],
   ['receipt mismatch is retained in note', /Receipt total '\+money\(receiptTotal\)/],
   ['forecast engine used by dashboard', /EMSForecast\.predict\(purchases\)/],
-  ['manual usage form not exposed as a visible tab', !/data-view="usage"|id="useTab"/.test(html)]
+  ['manual usage form not exposed as a visible tab', !/data-view="usage"|id="useTab"/.test(html)],
+  ['stock view does not claim untracked consumption or stock levels', !/Avg use:|suggested order:|Record usage to unlock/.test(html)],
+  ['purchase-pattern screen uses learned forecast', /const pattern=pred\.find/.test(html)]
 ];
 
 for (const [label, check] of required) {
