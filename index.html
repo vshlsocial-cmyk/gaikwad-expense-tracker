@@ -39,7 +39,7 @@ input,select,textarea{width:100%;border:1px solid #d8deea;border-radius:12px;pad
 <div class="linehead"><strong>Items in this purchase</strong><button type="button" id="addLine" class="secondary" style="min-height:38px;padding:7px 11px">+ Add item</button></div>
 <div id="lines"></div>
 <div class="notice">Each item needs its own quantity and total item cost. If you only know the full bill total, split it across items or enter the item prices from the invoice.</div>
-<div class="field"><label for="orderNote">Order note (optional)</label><input id="orderNote" placeholder="e.g. weekly grocery run"></div>
+<div class="field"><label for="orderNote">Order note (optional)</label><input id="orderNote" placeholder="e.g. weekly grocery run"></div><div class="field"><label for="receiptTotal">Total shown on receipt (optional, ₹)</label><input id="receiptTotal" type="number" min="0" step=".01" placeholder="e.g. 650.00"><div class="small">EMS checks this against the sum of item prices and warns you if they differ.</div></div>
 <button id="saveBuy" style="width:100%">Save all items</button>
 </form>
 <form id="useForm" class="hidden">
@@ -125,8 +125,14 @@ $('buyTab').onclick=()=>switchMode('buy');
 async function savePurchase(e){e.preventDefault();if(!$('spentBy').value){msg('entryMsg','Please add/select who paid. Add names in the Lists tab.','error');return}
  const lines=[...$('lines').children].map(el=>({item_name:el.querySelector('.ln-name').value.trim(),quantity:Number(el.querySelector('.ln-qty').value),unit:el.querySelector('.ln-unit').value,amount:Number(el.querySelector('.ln-price').value),category:el.querySelector('.ln-category').value}));
  if(lines.some(x=>!x.item_name||!x.unit||!x.category||!(x.quantity>0)||!Number.isFinite(x.amount)||x.amount<0)){msg('entryMsg','Please check each item: name, quantity, unit, category and item total are required.','error');return}
+ const receiptRaw=$('receiptTotal').value.trim(),receiptTotal=receiptRaw===''?null:Number(receiptRaw),itemsTotal=lines.reduce((sum,x)=>sum+x.amount,0);
+ if(receiptTotal!==null&&(!Number.isFinite(receiptTotal)||receiptTotal<0)){msg('entryMsg','Enter a valid receipt total or leave it blank.','error');return}
+ const difference=receiptTotal===null?0:receiptTotal-itemsTotal;
+ if(receiptTotal!==null&&Math.abs(difference)>1&&!confirm('Receipt total is '+money(receiptTotal)+' but item prices add up to '+money(itemsTotal)+' (difference '+money(difference)+'). Save anyway? The mismatch will be recorded in the purchase note.'))return;
+ const discrepancyNote=receiptTotal!==null&&Math.abs(difference)>1?'Receipt total '+money(receiptTotal)+'; item lines '+money(itemsTotal)+'; difference '+money(difference)+'. Please verify discount, fees, tax or rounding.':'';
  const orderId=crypto.randomUUID?crypto.randomUUID():String(Date.now())+'-'+Math.random();
- const rows=lines.map(x=>({...x,user_id:user.id,purchase_date:$('date').value,source:$('shop').value||null,spent_by:$('spentBy').value,description:$('orderNote').value.trim()||null,order_id:orderId,forecast_eligible:true}));
+ const note=[$('orderNote').value.trim(),discrepancyNote].filter(Boolean).join(' | ')||null;
+ const rows=lines.map(x=>({...x,user_id:user.id,purchase_date:$('date').value,source:$('shop').value||null,spent_by:$('spentBy').value,description:note,order_id:orderId,forecast_eligible:true}));
  $('saveBuy').disabled=true;$('saveBuy').textContent='Saving…';
  const {error}=await db.from('purchases').insert(rows);
  $('saveBuy').disabled=false;$('saveBuy').textContent='Save all items';
