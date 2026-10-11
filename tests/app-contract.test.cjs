@@ -16,7 +16,10 @@ const required = [
   ['forecast engine used by dashboard', /EMSForecast\.predict\(purchases\)/],
   ['manual usage form not exposed as a visible tab', !/data-view="usage"|id="useTab"/.test(html)],
   ['stock view does not claim untracked consumption or stock levels', !/Avg use:|suggested order:|Record usage to unlock/.test(html)],
-  ['purchase-pattern screen uses learned forecast', /const pattern=pred\.find/.test(html)]
+  ['purchase-pattern screen uses learned forecast', /const pattern=pred\.find/.test(html)],
+  ['purchase entry captures brand, variant and pack size', /class="ln-brand"[\s\S]*class="ln-variant"[\s\S]*class="ln-pack"/.test(html)],
+  ['purchase edit saves product identity', /brand:\$\('editBrand'\)[\s\S]*variant:\$\('editVariant'\)[\s\S]*pack_size:\$\('editPack'\)/.test(html)],
+  ['CSV backup includes product identity columns', /'brand','variant','pack_size'/.test(html)]
 ];
 
 for (const [label, check] of required) {
