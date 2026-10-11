@@ -9,7 +9,7 @@ const required = [
   ['edit purchase form', /id="editPurchaseForm"/],
   ['delete action with confirmation', /window\.deletePurchase[\s\S]*?confirm\(/],
   ['row-level security scoped purchase update', /\.update\(changes\)\.eq\('id',id\)\.eq\('user_id',user\.id\)/],
-  ['row-level security scoped purchase delete', /\.delete\(\)\.eq\('id',p\.id\)\.eq\('user_id',user\.id\)/],
+  ['row-level security scoped soft delete', /\.update\(\{deleted_at:new Date\(\)\.toISOString\(\),deleted_reason:/],
   ['new purchases eligible for forecast training', /forecast_eligible:true/],
   ['receipt total discrepancy is checked', /receiptTotal[\s\S]*?itemsTotal[\s\S]*?confirm\(/],
   ['receipt mismatch is retained in note', /Receipt total '\+money\(receiptTotal\)/],
@@ -19,7 +19,11 @@ const required = [
   ['purchase-pattern screen uses learned forecast', /const pattern=pred\.find/.test(html)],
   ['purchase entry captures brand, variant and pack size', /class="ln-brand"[\s\S]*class="ln-variant"[\s\S]*class="ln-pack"/.test(html)],
   ['purchase edit saves product identity', /brand:\$\('editBrand'\)[\s\S]*variant:\$\('editVariant'\)[\s\S]*pack_size:\$\('editPack'\)/.test(html)],
-  ['CSV backup includes product identity columns', /'brand','variant','pack_size'/.test(html)]
+  ['CSV backup includes product identity columns', /'brand','variant','pack_size'/.test(html)],
+  ['adjustment engine loaded by app', /adjustment-engine\.js/.test(html)],
+  ['returns and refunds are saved with signed-in user', /purchase_adjustments'\)\.insert\(\{\.\.\.draft,user_id:user\.id/.test(html)],
+  ['deleted purchases can be restored with user scoping', /window\.restorePurchase[\s\S]*?\.eq\('user_id',user\.id\)[\s\S]*?deleted_at:null/.test(html)],
+  ['purchase adjustment limits are validated before save', /EMSAdjustments\.validate\(p,draft,adjustments\)/.test(html)]
 ];
 
 for (const [label, check] of required) {
