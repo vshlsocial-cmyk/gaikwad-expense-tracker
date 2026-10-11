@@ -44,4 +44,5 @@
     return out.sort((a,b)=>a.next.localeCompare(b.next));
   }
   root.EMSForecast={predict,normalize};
+  if(typeof module!=='undefined'&&module.exports)module.exports={predict,normalize};
 })(typeof globalThis!=='undefined'?globalThis:this);
