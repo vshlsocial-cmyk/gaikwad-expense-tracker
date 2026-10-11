@@ -39,7 +39,7 @@ input,select,textarea{width:100%;border:1px solid #d8deea;border-radius:12px;pad
 <div class="linehead"><strong>Items in this purchase</strong><button type="button" id="addLine" class="secondary" style="min-height:38px;padding:7px 11px">+ Add item</button></div>
 <div id="lines"></div>
 <div class="notice">Each item needs its own quantity and total item cost. If you only know the full bill total, split it across items or enter the item prices from the invoice.</div>
-<div class="field"><label for="orderNote">Order note (optional)</label><input id="orderNote" placeholder="e.g. weekly grocery run"></div><div class="field"><label for="receiptTotal">Total shown on receipt (optional, ₹)</label><input id="receiptTotal" type="number" min="0" step=".01" placeholder="e.g. 650.00"><div class="small">EMS checks this against the sum of item prices and warns you if they differ.</div></div>
+<div class="field"><label for="orderNote">Order note (optional)</label><input id="orderNote" placeholder="e.g. weekly grocery run"></div><div class="grid"><div class="field"><label for="receiptTotal">Total shown on receipt (optional, ₹)</label><input id="receiptTotal" type="number" min="0" step=".01" placeholder="e.g. 650.00"></div><div class="field"><label for="receiptDifferenceType">Difference type</label><select id="receiptDifferenceType"><option value="discount">Discount</option><option value="fee">Extra fees / tax</option><option value="other">Other adjustment</option></select></div></div><div class="small">When receipt total differs from item totals, EMS allocates the difference proportionally across items, stores the receipt totals on each line, and adjusts the final line for rounding.</div>
 <button id="saveBuy" style="width:100%">Save all items</button>
 </form>
 <form id="useForm" class="hidden">
@@ -129,12 +129,19 @@ async function savePurchase(e){e.preventDefault();if(!$('spentBy').value){msg('e
  if(lines.some(x=>!x.item_name||!x.unit||!x.category||!(x.quantity>0)||!Number.isFinite(x.amount)||x.amount<0)){msg('entryMsg','Please check each item: name, quantity, unit, category and item total are required.','error');return}
  const receiptRaw=$('receiptTotal').value.trim(),receiptTotal=receiptRaw===''?null:Number(receiptRaw),itemsTotal=lines.reduce((sum,x)=>sum+x.amount,0);
  if(receiptTotal!==null&&(!Number.isFinite(receiptTotal)||receiptTotal<0)){msg('entryMsg','Enter a valid receipt total or leave it blank.','error');return}
- const difference=receiptTotal===null?0:receiptTotal-itemsTotal;
- if(receiptTotal!==null&&Math.abs(difference)>1&&!confirm('Receipt total is '+money(receiptTotal)+' but item prices add up to '+money(itemsTotal)+' (difference '+money(difference)+'). Save anyway? The mismatch will be recorded in the purchase note.'))return;
- const discrepancyNote=receiptTotal!==null&&Math.abs(difference)>1?'Receipt total '+money(receiptTotal)+'; item lines '+money(itemsTotal)+'; difference '+money(difference)+'. Please verify discount, fees, tax or rounding.':'';
+ const difference=receiptTotal===null?0:Math.round((receiptTotal-itemsTotal)*100)/100;
+ if(receiptTotal!==null&&itemsTotal<=0&&Math.abs(difference)>0.01){msg('entryMsg','A receipt adjustment cannot be allocated when all item prices total zero. Enter item prices first.','error');return}
+ if(receiptTotal!==null&&Math.abs(difference)>0.01&&!confirm('Item prices total '+money(itemsTotal)+' and receipt total is '+money(receiptTotal)+'. The '+$('receiptDifferenceType').value+' of '+money(Math.abs(difference))+' will be allocated proportionally across items. Continue?'))return;
+ let allocated=0;
  const orderId=crypto.randomUUID?crypto.randomUUID():String(Date.now())+'-'+Math.random();
- const note=[$('orderNote').value.trim(),discrepancyNote].filter(Boolean).join(' | ')||null;
- const rows=lines.map(x=>({...x,user_id:user.id,purchase_date:$('date').value,source:$('shop').value||null,spent_by:$('spentBy').value,description:note,order_id:orderId,forecast_eligible:true}));
+ const rows=lines.map((x,i)=>{
+   let adj=0;
+   if(receiptTotal!==null&&itemsTotal>0){adj=i===lines.length-1?Math.round((difference-allocated)*100)/100:Math.round(difference*x.amount/itemsTotal*100)/100;allocated+=adj;}
+   const net=Math.round((x.amount+adj)*100)/100;
+   if(net<0)throw new Error('Allocated discount exceeds an item price.');
+   return {...x,amount:net,item_subtotal:x.amount,receipt_total:receiptTotal,receipt_items_total:receiptTotal===null?null:itemsTotal,receipt_adjustment:receiptTotal===null?0:adj,receipt_adjustment_type:receiptTotal===null?null:$('receiptDifferenceType').value,user_id:user.id,purchase_date:$('date').value,source:$('shop').value||null,spent_by:$('spentBy').value,description:$('orderNote').value.trim()||null,order_id:orderId,forecast_eligible:true};
+ });
+ if(rows.some(x=>x.amount<0)){msg('entryMsg','Discount allocation would make an item price negative. Check the receipt totals.','error');return}
  $('saveBuy').disabled=true;$('saveBuy').textContent='Saving…';
  const {error}=await db.from('purchases').insert(rows);
  $('saveBuy').disabled=false;$('saveBuy').textContent='Save all items';
