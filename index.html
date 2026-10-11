@@ -259,7 +259,12 @@ $('comparePlan').onclick=()=>{
   const candidates=exact.length?exact:purchases.filter(p=>{const n=norm(p.item_name);return n.includes(q)||q.includes(n)}).filter(p=>norm(p.item_name).length>1);
   const identities=[...new Set(candidates.map(p=>String(p.item_name||'').trim()))];
   if(!candidates.length){rows.push('<div class="linecard"><strong>'+esc(query)+'</strong><p class="small">No matching item in purchase history. Add a purchase first or check spelling.</p></div>');continue}
-  if(!exact.length&&identities.length!==1){rows.push('<div class="linecard"><strong>'+esc(query)+'</strong><p class="small">Possible matches — review the name; EMS will not choose a brand or variant automatically.</p>'+identities.map(n=>'<div class="item"><div>'+esc(n)+'</div></div>').join('')+'</div>');continue}
+  const identityKey=p=>[p.item_name,p.brand,p.variant,p.pack_size].map(v=>String(v||'').trim().toLocaleLowerCase()).join('|');
+  const identityGroups=[...new Map(candidates.map(p=>[identityKey(p),p])).values()];
+  if((!exact.length&&identities.length!==1)||(exact.length&&identityGroups.length>1)){
+   const labels=[...new Set(candidates.map(p=>[String(p.item_name||'').trim(),p.brand,p.variant,p.pack_size].filter(Boolean).join(' · ')))];
+   rows.push('<div class="linecard"><strong>'+esc(query)+'</strong><p class="small">Possible product identities — review these before comparing; EMS will not merge brands, variants or pack sizes automatically.</p>'+labels.map(n=>'<div class="item"><div>'+esc(n)+'</div></div>').join('')+'</div>');continue
+  }
   const matches=candidates;
   const byShop=new Map();
   matches.forEach(p=>{
