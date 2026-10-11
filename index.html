@@ -254,7 +254,7 @@ $('comparePlan').onclick=()=>{
  if(!wanted.length){msg('planMsg','Enter at least one item, one per line.','error');return}
  const rows=[];
  for(const query of wanted){
-  const norm=v=>String(v||'').toLocaleLowerCase().normalize('NFKD').replace(/[\\u0300-\\u036f]/g,'').replace(/[^a-z0-9]+/g,' ').trim();
+  const norm=v=>String(v||'').toLocaleLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,' ').trim();
   const q=norm(query), exact=purchases.filter(p=>norm(p.item_name)===q);
   const candidates=exact.length?exact:purchases.filter(p=>{const n=norm(p.item_name);return n.includes(q)||q.includes(n)}).filter(p=>norm(p.item_name).length>1);
   const identities=[...new Set(candidates.map(p=>String(p.item_name||'').trim()))];
