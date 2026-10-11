@@ -117,7 +117,7 @@ async function savePurchase(e){e.preventDefault();if(!$('spentBy').value){msg('e
  const lines=[...$('lines').children].map(el=>({item_name:el.querySelector('.ln-name').value.trim(),quantity:Number(el.querySelector('.ln-qty').value),unit:el.querySelector('.ln-unit').value,amount:Number(el.querySelector('.ln-price').value),category:el.querySelector('.ln-category').value}));
  if(lines.some(x=>!x.item_name||!x.unit||!x.category||!(x.quantity>0)||!Number.isFinite(x.amount)||x.amount<0)){msg('entryMsg','Please check each item: name, quantity, unit, category and item total are required.','error');return}
  const orderId=crypto.randomUUID?crypto.randomUUID():String(Date.now())+'-'+Math.random();
- const rows=lines.map(x=>({...x,user_id:user.id,purchase_date:$('date').value,source:$('shop').value||null,spent_by:$('spentBy').value,description:$('orderNote').value.trim()||null,order_id:orderId}));
+ const rows=lines.map(x=>({...x,user_id:user.id,purchase_date:$('date').value,source:$('shop').value||null,spent_by:$('spentBy').value,description:$('orderNote').value.trim()||null,order_id:orderId,forecast_eligible:true}));
  $('saveBuy').disabled=true;$('saveBuy').textContent='Saving…';
  const {error}=await db.from('purchases').insert(rows);
  $('saveBuy').disabled=false;$('saveBuy').textContent='Save all items';
