@@ -24,6 +24,8 @@ jobs:
         run: node -e "JSON.parse(require('fs').readFileSync('manifest.webmanifest','utf8')); console.log('Manifest JSON is valid')"
       - name: Check service worker syntax
         run: node --check sw.js
+      - name: Run forecast engine unit tests
+        run: node tests/forecast-engine.test.cjs
       - name: Check inline application JavaScript syntax
         run: |
           python3 - <<'PY'
