@@ -22,4 +22,4 @@ assert.equal(predict([
  {item_name:'Oil',purchase_date:'2026-01-10',quantity:1,unit:'litre',amount:100,forecast_eligible:true}
 ]).length, 0, 'bottle and litre units are not silently combined');
 assert.equal(predict(rows.map(x => ({...x,forecast_eligible:false}))).length, 0, 'historical purchases are excluded from training');
-console.log('EMS forecast tests passed: 8 assertions');
+console.log('EMS forecast tests passed: 10 assertions');
