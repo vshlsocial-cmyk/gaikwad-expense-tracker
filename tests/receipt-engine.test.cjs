@@ -1,0 +1,17 @@
+const assert=require('node:assert/strict');
+const {allocate}=require('../receipt-engine.js');
+const result=allocate([{item_name:'Rice',amount:100},{item_name:'Milk',amount:50}],135);
+assert.deepEqual(result.items.map(x=>x.amount),[90,45]);
+assert.equal(result.items.reduce((s,x)=>s+x.amount,0),135);
+assert.equal(result.difference,-15);
+const rounding=allocate([{amount:1},{amount:1},{amount:1}],1);
+assert.deepEqual(rounding.items.map(x=>x.amount),[0.33,0.33,0.34]);
+assert.equal(rounding.items.reduce((s,x)=>s+x.amount,0),1);
+const noReceipt=allocate([{amount:12.345},{amount:2}],null);
+assert.equal(noReceipt.items[0].amount,12.35);
+assert.equal(noReceipt.receiptTotal,null);
+assert.throws(()=>allocate([{amount:0},{amount:0}],5),/zero-priced/);
+assert.throws(()=>allocate([{amount:1}],0),/discount exceeds/);
+assert.throws(()=>allocate([{amount:-1}],1),/non-negative/);
+assert.throws(()=>allocate([{amount:1}],-1),/non-negative/);
+console.log('Receipt engine tests passed: 9 assertions');
