@@ -4,6 +4,7 @@ const html = fs.readFileSync('index.html', 'utf8');
 
 const required = [
   ['PWA manifest link', /rel="manifest" href="\.\/manifest\.webmanifest"/],
+  ['data loader query count matches six result slots', /const \[p,t,a,u,m,s\]=await Promise\.all\(\[[\s\S]*?db\.from\('shops'\)\.select\('\*'\)\.order\('name'\)\s*\]\)/.test(html)],
   ['searchable purchase history view', /id="view-history"/],
   ['purchase search field', /id="historySearch"/],
   ['edit purchase form', /id="editPurchaseForm"/],
