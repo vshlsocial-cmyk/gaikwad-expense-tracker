@@ -1,0 +1,72 @@
+name: EMS static checks
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main, "ems/**"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  static-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Validate manifest JSON
+        run: node -e "JSON.parse(require('fs').readFileSync('manifest.webmanifest','utf8')); console.log('Manifest JSON is valid')"
+      - name: Check service worker syntax
+        run: node --check sw.js
+      - name: Check inline application JavaScript syntax
+        run: |
+          python3 - <<'PY'
+          from html.parser import HTMLParser
+          from pathlib import Path
+
+          class InlineScripts(HTMLParser):
+              def __init__(self):
+                  super().__init__()
+                  self.in_script = False
+                  self.external = False
+                  self.parts = []
+                  self.scripts = []
+
+              def handle_starttag(self, tag, attrs):
+                  if tag.lower() == "script":
+                      self.in_script = True
+                      self.external = any(k.lower() == "src" for k, _ in attrs)
+                      self.parts = []
+
+              def handle_data(self, data):
+                  if self.in_script and not self.external:
+                      self.parts.append(data)
+
+              def handle_endtag(self, tag):
+                  if tag.lower() == "script" and self.in_script:
+                      if not self.external:
+                          self.scripts.append("".join(self.parts))
+                      self.in_script = False
+                      self.external = False
+
+          parser = InlineScripts()
+          parser.feed(Path("index.html").read_text(encoding="utf-8"))
+          if not parser.scripts:
+              raise SystemExit("No inline JavaScript found in index.html")
+          Path("/tmp/ems-inline.js").write_text("\n;\n".join(parser.scripts), encoding="utf-8")
+          print(f"Extracted {len(parser.scripts)} inline script block(s)")
+          PY
+          node --check /tmp/ems-inline.js
+      - name: Verify PWA files exist
+        run: |
+          test -s manifest.webmanifest
+          test -s sw.js
+          test -s icons/ems.svg
+          test -s install.html
+          echo "Required PWA files exist"
