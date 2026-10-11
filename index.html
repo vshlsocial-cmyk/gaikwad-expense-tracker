@@ -93,6 +93,10 @@ function setDefaults(){
 }
 function renderLists(){
  $('spentBy').innerHTML=opt(members.map(x=>x.name),'Choose who paid');
+ $('editUnit').innerHTML=opt(units,'Choose unit');
+ $('editCategory').innerHTML=opt(categories,'Choose category');
+ $('editShop').innerHTML=opt(shops.map(x=>x.name),'No shop selected');
+ $('editSpentBy').innerHTML=opt(members.map(x=>x.name),'Choose who paid');
  $('shop').innerHTML=opt(shops.map(x=>x.name),'Choose a shop (optional)');
  const names=[...new Set([...purchases.map(x=>x.item_name),...usages.map(x=>x.item_name)].filter(Boolean))].sort((a,b)=>a.localeCompare(b));
  $('useItem').innerHTML=opt(names,'Choose an item');
@@ -158,8 +162,40 @@ function inventory(){const map=new Map();const key=(n,u)=>n.trim().toLowerCase()
  const cutoff=new Date();cutoff.setDate(cutoff.getDate()-30);
  usages.forEach(u=>{const x=get(u.item_name,u.unit);x.used+=Number(u.quantity)||0;if(u.usage_date>=ds(cutoff))x.use30+=Number(u.quantity)||0});
  return [...map.values()].map(x=>({...x,stock:x.bought-x.used,daily:x.use30/30,order:Math.max(0,x.use30/30*Number($('targetDays').value)-(x.bought-x.used))})).sort((a,b)=>a.name.localeCompare(b.name))}
+function renderHistory(){
+ const q=$('historySearch').value.trim().toLocaleLowerCase(),from=$('historyFrom').value,to=$('historyTo').value;
+ const rows=purchases.filter(p=>(!from||p.purchase_date>=from)&&(!to||p.purchase_date<=to)&&(!q||[p.item_name,p.source,p.description,p.category,p.spent_by].some(v=>String(v||'').toLocaleLowerCase().includes(q))));
+ $('historyList').innerHTML=rows.length?rows.map(p=>`<div class="item"><div style="min-width:0;flex:1"><div class="item-title">${esc(p.item_name)}</div><div class="small">${esc(p.purchase_date)} · ${fmt(p.quantity)} ${esc(p.unit)} · ${esc(p.category)}</div><div class="small">${p.source?'From '+esc(p.source)+' · ':''}${p.spent_by?'Paid by '+esc(p.spent_by):''}</div><div class="small">${esc(p.description||'')}</div><strong>${money(p.amount)}</strong></div><div class="actions" style="flex:0 0 auto;flex-direction:column"><button type="button" class="secondary" style="min-height:36px;padding:7px 10px;font-size:12px" onclick="window.editPurchase('${p.id}')">Edit</button><button type="button" class="danger" style="min-height:36px;padding:7px 10px;font-size:12px" onclick="window.deletePurchase('${p.id}')">Delete</button></div></div>`).join(''):'<div class="empty">No matching purchases. Try clearing the filters or add a purchase.</div>';
+}
+window.editPurchase=id=>{
+ const p=purchases.find(x=>String(x.id)===String(id));if(!p)return;
+ $('editPurchaseId').value=p.id;$('editName').value=p.item_name;$('editDate').value=p.purchase_date;$('editQty').value=p.quantity;$('editAmount').value=p.amount;$('editNote').value=p.description||'';
+ $('editUnit').value=p.unit;$('editCategory').value=p.category;
+ if(p.source&&!shops.some(x=>x.name===p.source))$('editShop').insertAdjacentHTML('beforeend',`<option value="${esc(p.source)}">${esc(p.source)}</option>`);
+ $('editShop').value=p.source||'';$('editSpentBy').value=p.spent_by||'';
+ $('editPurchasePanel').classList.remove('hidden');hide('editPurchaseMsg');$('editPurchasePanel').scrollIntoView({behavior:'smooth',block:'start'});
+};
+window.deletePurchase=async id=>{
+ const p=purchases.find(x=>String(x.id)===String(id));if(!p)return;
+ if(!confirm(`Delete "${p.item_name}" (${money(p.amount)}) from ${p.purchase_date}? This cannot be undone.`))return;
+ const {error}=await db.from('purchases').delete().eq('id',p.id).eq('user_id',user.id);
+ if(error){alert('Could not delete this purchase: '+error.message);return}
+ await load();
+};
+$('editPurchaseForm').onsubmit=async e=>{
+ e.preventDefault();const id=$('editPurchaseId').value;
+ const changes={item_name:$('editName').value.trim(),purchase_date:$('editDate').value,quantity:Number($('editQty').value),unit:$('editUnit').value,amount:Number($('editAmount').value),category:$('editCategory').value,source:$('editShop').value||null,spent_by:$('editSpentBy').value||null,description:$('editNote').value.trim()||null};
+ if(!changes.item_name||!changes.purchase_date||!(changes.quantity>0)||!Number.isFinite(changes.amount)||changes.amount<0||!changes.unit||!changes.category){msg('editPurchaseMsg','Check the item name, date, quantity, unit, category and price.','error');return}
+ const {error}=await db.from('purchases').update(changes).eq('id',id).eq('user_id',user.id);
+ if(error){msg('editPurchaseMsg','Could not save changes: '+error.message,'error');return}
+ $('editPurchasePanel').classList.add('hidden');await load();msg('globalMsg','Purchase updated. Reports and predictions have been refreshed.','success');
+};
+$('cancelEdit').onclick=()=>$('editPurchasePanel').classList.add('hidden');
+$('historySearch').addEventListener('input',renderHistory);
+$('historyFrom').addEventListener('change',renderHistory);$('historyTo').addEventListener('change',renderHistory);
+$('clearHistoryFilters').onclick=()=>{$('historySearch').value='';$('historyFrom').value='';$('historyTo').value='';renderHistory()};
 function render(){
- renderLists();const inv=inventory(),month=ds(new Date(today.getFullYear(),today.getMonth(),1));
+ renderLists();renderHistory();const inv=inventory(),month=ds(new Date(today.getFullYear(),today.getMonth(),1));
  $('monthSpend').textContent=money(purchases.filter(p=>p.purchase_date>=month&&p.purchase_date<=ds(today)).reduce((s,p)=>s+Number(p.amount||0),0));
  $('stockCount').textContent=inv.filter(x=>x.stock>0).length;$('lowCount').textContent=inv.filter(x=>x.stock<=0||(x.daily>0&&x.stock<=x.daily*7)).length;
  const pred=window.EMSForecast?window.EMSForecast.predict(purchases).slice(0,5):[];
