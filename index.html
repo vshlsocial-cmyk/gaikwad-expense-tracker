@@ -277,9 +277,9 @@ $('comparePlan').onclick=()=>{
   let options=[...byShop.entries()].map(([shop,items])=>{
    items.sort((a,b)=>a.date.localeCompare(b.date));
    const chosen=$('planMode').value==='lowest'?items.reduce((a,b)=>a.price<=b.price?a:b):items[items.length-1];
-   return {shop,...chosen};
+   return {shop,...chosen,identity:[chosen.p.brand,chosen.p.variant,chosen.p.pack_size].filter(Boolean).join(' · ')};
   }).sort((a,b)=>a.price-b.price);
-  rows.push('<div class="linecard"><strong>'+esc(query)+'</strong>'+options.map((x,i)=>'<div class="item"><div><strong>'+esc(x.shop)+'</strong><div class="small">'+esc(x.date)+' · per '+esc(x.unit)+(i===0?' · lowest historical reference':'')+'</div></div><div class="right">'+money(x.price)+'</div></div>').join('')+'</div>');
+  rows.push('<div class="linecard"><strong>'+esc(query)+'</strong>'+options.map((x,i)=>'<div class="item"><div><strong>'+esc(x.shop)+'</strong><div class="small">'+(x.identity?esc(x.identity)+' · ':'')+esc(x.date)+' · per '+esc(x.unit)+(i===0?' · lowest historical reference':'')+'</div></div><div class="right">'+money(x.price)+'</div></div>').join('')+'</div>');
  }
  $('planResults').innerHTML=rows.join('');
  msg('planMsg','Compared '+wanted.length+' list item(s) against recorded purchases. Prices are historical; no live retailer offers, stock, delivery fees or ETAs are checked.','success');
