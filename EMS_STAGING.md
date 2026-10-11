@@ -11,6 +11,8 @@ This branch adds the first safe, reviewable PWA layer to the existing EMS site.
 - Removed visible manual usage-recording controls from the main workflow. Legacy usage records were cleared from the connected database for a fresh start.
 - Added `phase13_forecast_eligibility.sql`; applied the additive migration to the connected database. Existing purchase history was cleared; future purchases are explicitly marked eligible for forecasting.
 - Added `install.html` with Android installation instructions.
+- Added optional brand, variant, and descriptive pack-size fields to purchase entry/edit/history/CSV. Forecast groups now keep those identities separate, and pack descriptions are never converted into weight or volume automatically.
+- Added `phase14_product_identity.sql`, an additive migration for the three optional product identity columns. It does not delete or rewrite purchase rows.
 
 ## Test plan before merge
 1. Confirm GitHub Pages preview serves `manifest.webmanifest`, `sw.js`, `icons/ems.svg`, and `install.html` with status 200.
