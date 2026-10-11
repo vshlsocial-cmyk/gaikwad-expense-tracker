@@ -17,7 +17,7 @@ const required = [
   ['receipt reconciliation fields are persisted on purchase lines', /item_subtotal:x\.amount[\s\S]*receipt_total:receiptTotal[\s\S]*receipt_adjustment:receiptTotal/ .test(html)],
   ['CSV backup includes receipt reconciliation fields', /'item_subtotal','receipt_total','receipt_items_total','receipt_adjustment','receipt_adjustment_type'/.test(html)],
 
-  ['receipt mismatch is retained in note', /Receipt total '\+money\(receiptTotal\)/],
+  ['receipt reconciliation details are persisted on each purchase line', /receipt_total:receiptTotal[\s\S]*receipt_items_total:receiptTotal===null\?null:itemsTotal/],
   ['forecast engine uses return/refund adjustments', /EMSForecast\.predict\(purchases,adjustments\)/],
   ['manual usage form not exposed as a visible tab', !/data-view="usage"|id="useTab"/.test(html)],
   ['stock view does not claim untracked consumption or stock levels', !/Avg use:|suggested order:|Record usage to unlock/.test(html)],
