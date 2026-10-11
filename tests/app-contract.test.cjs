@@ -7,7 +7,7 @@ const required = [
   ['data loader query count matches six result slots', /const \[p,t,a,u,m,s\]=await Promise\.all\(\[[\s\S]*?db\.from\('shops'\)\.select\('\*'\)\.order\('name'\)\s*\]\)/.test(html)],
   ['shopping planner view is present', /id="view-planner"/.test(html)],
   ['shopping planner labels comparisons as historical rather than live', /historical references, not live retailer prices/.test(html) && /no live retailer offers/.test(html)],
-  ['shopping planner compares only against purchase history', /purchases\.filter\(p=>String\(p\.item_name/.test(html)],
+  ['shopping planner normalizes names and flags ambiguous matches', /normalize\('NFKD'\)/.test(html) && /Possible matches — review the name/.test(html)],
   ['searchable purchase history view', /id="view-history"/],
   ['purchase search field', /id="historySearch"/],
   ['edit purchase form', /id="editPurchaseForm"/],
