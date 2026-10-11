@@ -6,7 +6,7 @@
   const refunded=rows.reduce((s,a)=>s+Math.max(0,Number(a.refund_amount)||0),0);
   const quantity=Math.max(0,Number(purchase.quantity)||0);
   const amount=Math.max(0,Number(purchase.amount)||0);
-  return {returnedQuantity:returned,retainedQuantity:Math.max(0,quantity-returned),refundAmount:refunded,netSpend:amount-refunded,overReturned:returned>quantity+1e-9,overRefunded:refunded>amount+0.01};
+  return {returnedQuantity:returned,retainedQuantity:Math.max(0,quantity-returned),refundAmount:refunded,netSpend:Math.max(0,amount-refunded),overReturned:returned>quantity+1e-9,overRefunded:refunded>amount+0.01};
  }
  function validate(purchase, adjustment, prior){
   const qty=Math.max(0,Number(purchase.quantity)||0), amount=Math.max(0,Number(purchase.amount)||0);
