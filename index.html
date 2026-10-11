@@ -24,7 +24,7 @@ input,select,textarea{width:100%;border:1px solid #d8deea;border-radius:12px;pad
 <section id="view-home" class="view active">
 <div class="panel"><div class="small" id="today"></div><h1>Your home at a glance</h1><p class="muted">Simple spending and supply tracking.</p></div>
 <div class="stats"><div class="stat"><div class="label">SPENT THIS MONTH</div><div class="num" id="monthSpend">₹0</div></div><div class="stat"><div class="label">ITEMS TRACKED</div><div class="num" id="stockCount">0</div></div><div class="stat"><div class="label">DUE TO BUY</div><div class="num" id="lowCount">0</div></div></div>
-<div class="panel"><h2>🛒 Predicted next purchases</h2><div id="forecast" class="empty">Add repeat purchases to begin learning reorder patterns.</div><button class="secondary" data-goto="stock" style="width:100%">See inventory</button></div>
+<div class="panel"><h2>🛒 Predicted next purchases</h2><div id="forecast" class="empty">Add repeat purchases to begin learning reorder patterns.</div><button class="secondary" data-goto="stock" style="width:100%">See patterns</button></div>
 <div class="panel"><h2>🧾 Recent purchases</h2><div id="recent" class="empty">No purchases yet.</div><button data-goto="add" style="width:100%">+ Add purchase</button></div>
 </section>
 <section id="view-add" class="view">
@@ -157,11 +157,11 @@ function parseOrder(text){
 }
 $('parseText').onclick=()=>{const items=parseOrder($('orderText').value);if(!items.length){msg('ocrMsg','I could not confidently find item lines with a final price. Try one item per line, such as “Rice 5 kg 320”.','error');return}resetLines();$('lines').innerHTML='';items.forEach(x=>newLine(x));msg('ocrMsg',`Found ${items.length} possible item lines. Review every item, quantity, unit, category and price before saving.`,'success')};
 $('photo').onchange=async e=>{const file=e.target.files?.[0];if(!file)return;if(!window.Tesseract){msg('ocrMsg','Photo reading library did not load. You can paste the invoice text instead.','error');return}msg('ocrMsg','Reading photo… keep this page open.','');try{const result=await Tesseract.recognize(file,'eng',{logger:m=>{if(m.status==='recognizing text')$('ocrMsg').textContent='Reading photo… '+Math.round((m.progress||0)*100)+'%'}});$('orderText').value=result.data.text;const items=parseOrder(result.data.text);if(items.length){resetLines();$('lines').innerHTML='';items.forEach(x=>newLine(x));msg('ocrMsg',`Read ${items.length} possible item lines. Please review carefully; OCR can make mistakes.`,'success')}else msg('ocrMsg','Text was read, but item/price lines were not clear enough to fill automatically. Check the text box and tap “Read pasted list”.','error')}catch(err){msg('ocrMsg','Could not read that image. Try a clearer, well-lit photo or paste the text.','error')}};
-function inventory(){const map=new Map();const key=(n,u)=>n.trim().toLowerCase()+'|'+u.trim().toLowerCase();function get(n,u){let k=key(n,u);if(!map.has(k))map.set(k,{key:k,name:n,unit:u,bought:0,used:0,spent:0,use30:0});return map.get(k)}
- purchases.forEach(p=>{const x=get(p.item_name,p.unit);x.bought+=Number(p.quantity)||0;x.spent+=Number(p.amount)||0});
+function inventory(){const map=new Map();const key=(n,u)=>n.trim().toLowerCase()+'|'+u.trim().toLowerCase();function get(n,u){let k=key(n,u);if(!map.has(k))map.set(k,{key:k,name:n,unit:u,bought:0,used:0,spent:0,use30:0,dates:new Set()});return map.get(k)}
+ purchases.forEach(p=>{const x=get(p.item_name,p.unit);x.bought+=Number(p.quantity)||0;x.spent+=Number(p.amount)||0;x.dates.add(p.purchase_date)});
  const cutoff=new Date();cutoff.setDate(cutoff.getDate()-30);
  usages.forEach(u=>{const x=get(u.item_name,u.unit);x.used+=Number(u.quantity)||0;if(u.usage_date>=ds(cutoff))x.use30+=Number(u.quantity)||0});
- return [...map.values()].map(x=>({...x,stock:x.bought-x.used,daily:x.use30/30,order:Math.max(0,x.use30/30*Number($('targetDays').value)-(x.bought-x.used))})).sort((a,b)=>a.name.localeCompare(b.name))}
+ return [...map.values()].map(x=>({...x,datesCount:x.dates.size,stock:x.bought-x.used,daily:x.use30/30,order:0})).sort((a,b)=>a.name.localeCompare(b.name))}
 function renderHistory(){
  const q=$('historySearch').value.trim().toLocaleLowerCase(),from=$('historyFrom').value,to=$('historyTo').value;
  const rows=purchases.filter(p=>(!from||p.purchase_date>=from)&&(!to||p.purchase_date<=to)&&(!q||[p.item_name,p.source,p.description,p.category,p.spent_by].some(v=>String(v||'').toLocaleLowerCase().includes(q))));
