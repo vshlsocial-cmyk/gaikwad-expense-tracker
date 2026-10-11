@@ -22,7 +22,7 @@ const required = [
   ['CSV backup includes product identity columns', /'brand','variant','pack_size'/.test(html)],
   ['adjustment engine loaded by app', /adjustment-engine\.js/.test(html)],
   ['returns and refunds are saved with signed-in user', /purchase_adjustments'\)\.insert\(\{\.\.\.draft,user_id:user\.id/.test(html)],
-  ['deleted purchases can be restored with user scoping', /window\.restorePurchase[\s\S]*?\.eq\('user_id',user\.id\)[\s\S]*?deleted_at:null/.test(html)],
+  ['deleted purchases can be restored with user scoping', /window\.restorePurchase[\s\S]*?update\(\{deleted_at:null,deleted_reason:null\}\)[\s\S]*?\.eq\('user_id',user\.id\)/.test(html)],
   ['purchase adjustment limits are validated before save', /EMSAdjustments\.validate\(p,draft,adjustments\)/.test(html)]
 ];
 
