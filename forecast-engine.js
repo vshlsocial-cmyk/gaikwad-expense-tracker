@@ -14,8 +14,9 @@
     if(['l','ltr','litre','liter','litres','liters'].includes(u))return{key:'volume',unit:'litre',quantity:q};
     return{key:u,unit:u,quantity:q};
   }
-  function predict(purchases){
-    const groups=new Map();
+  function predict(purchases, adjustments){
+    const groups=new Map(), adjByPurchase=new Map();
+    (adjustments||[]).forEach(a=>{const k=String(a.purchase_id);if(!adjByPurchase.has(k))adjByPurchase.set(k,{qty:0,refund:0});const z=adjByPurchase.get(k);z.qty+=Math.max(0,Number(a.quantity_returned)||0);z.refund+=Math.max(0,Number(a.refund_amount)||0)});
     (purchases||[]).forEach(p=>{
       const name=String(p.item_name||'').trim();
       if(!name||!p.purchase_date||p.forecast_eligible!==true)return;
@@ -24,7 +25,7 @@
       if(!groups.has(key))groups.set(key,{name,brand,variant,pack_size:pack,unit:n.unit,events:new Map()});
       const g=groups.get(key),date=String(p.purchase_date);
       if(!g.events.has(date))g.events.set(date,{date,qty:0,cost:0});
-      const e=g.events.get(date);e.qty+=Math.max(0,n.quantity);e.cost+=Math.max(0,Number(p.amount)||0);
+      const e=g.events.get(date),a=adjByPurchase.get(String(p.id))||{qty:0,refund:0};e.qty+=Math.max(0,n.quantity-Math.min(n.quantity,a.qty));e.cost+=Math.max(0,Number(p.amount||0)-Math.min(Number(p.amount||0),a.refund));
     });
     const out=[];
     groups.forEach(g=>{
