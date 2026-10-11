@@ -12,7 +12,7 @@ Date: 2026-10-11
 - Purchase-pattern screen now describes estimates from purchase history rather than implying physical stock can be known without usage logs.
 
 ## Release checks still outstanding
-- The latest UI changes need a fresh successful CI run confirming the app-contract test and current JavaScript.
+- GitHub Actions run 38126393058 completed successfully after the receipt-total warning and app-contract updates. Manifest, service-worker syntax, forecast tests, app-contract checks, inline JavaScript syntax, and required-file checks all passed.
 - A real-browser smoke test is not yet confirmed. Authentication, create/edit/delete, reports, CSV export and password recovery must be tested on the hosted app before calling the release complete.
 - Android Chrome installation and app launch have not been verified on a device.
 - No automated browser testing is claimed.
