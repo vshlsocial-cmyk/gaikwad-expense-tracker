@@ -15,6 +15,7 @@ This branch adds the first safe, reviewable PWA layer to the existing EMS site.
 - Added additive product-identity migration `phase14_product_identity.sql`.
 - Added linked return/refund records, cumulative database safeguards, recycle-bin restore/retention controls, and CSV backup of active/deleted purchases plus adjustments.
 - Forecasts now account for physical returned quantity and refunds when calculating typical quantities and costs; regression tests cover both return-and-refund and refund-only cases.
+- Receipt reconciliation now stores the entered receipt total and pre-adjustment item subtotal on each basket line, allocates discounts/fees proportionally, assigns rounding remainder to the final line, and exports the reconciliation fields in CSV. The additive `phase17_receipt_reconciliation.sql` migration adds the columns without rewriting existing amounts.
 
 ## Test plan before merge
 1. Confirm GitHub Pages preview serves `manifest.webmanifest`, `sw.js`, `icons/ems.svg`, and `install.html` with status 200.
@@ -24,6 +25,6 @@ This branch adds the first safe, reviewable PWA layer to the existing EMS site.
 5. Test an update to the app and confirm the new shell cache replaces the old one.
 
 ## Explicit limitations
-The app remains a static PWA backed by Supabase. It does not implement live retailer price/stock/delivery comparison, automatic checkout, native APK packaging, JSON restore, or receipt-level persistence with discount/fee allocation. A receipt-total mismatch warning exists but does not allocate discounts or fees. The connected Supabase project has the purchase-adjustment safeguards; purchase and usage counts were verified as zero after the fresh-start reset, while family-member and shop lists were retained. Real-browser smoke tests and device installation remain unverified.
+The app remains a static PWA backed by Supabase. It does not implement live retailer price/stock/delivery comparison, automatic checkout, native APK packaging, or JSON restore. Receipt totals and allocated adjustments are stored per purchase line (grouped by `order_id`), rather than in a separate receipt table. The connected Supabase project has the purchase-adjustment safeguards; purchase and usage counts were verified as zero after the fresh-start reset, while family-member and shop lists were retained. Real-browser smoke tests and device installation remain unverified.
 
 **Deployment safety:** This branch is still not the live `main` branch. Static CI passes, but live browser tests remain outstanding; do not claim full completion until those checks pass.
