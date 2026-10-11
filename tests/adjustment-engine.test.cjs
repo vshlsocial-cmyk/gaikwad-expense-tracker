@@ -15,4 +15,7 @@ assert.equal(validate(purchase,{purchase_id:7,adjustment_type:'refund',quantity_
 assert.equal(validate(purchase,{purchase_id:7,adjustment_type:'refund',quantity_returned:0,refund_amount:5,physically_returned:false},prior).ok,true,'refund-only does not imply physical return');
 assert.equal(validate(purchase,{purchase_id:7,adjustment_type:'return',quantity_returned:1,refund_amount:0,physically_returned:true},prior).ok,true,'physical return can happen without a refund');
 assert.equal(validate(purchase,{purchase_id:7,adjustment_type:'return',quantity_returned:1,refund_amount:0,physically_returned:false},prior).ok,false,'return requires physical return confirmation');
-console.log('EMS adjustment engine tests passed: 9 assertions');
+const malformed = summarize(purchase,[{purchase_id:7,refund_amount:150,physically_returned:false}]);
+assert.equal(malformed.netSpend,0,'defensive summary never reports negative net spend');
+assert.equal(malformed.overRefunded,true,'malformed cumulative refund is flagged');
+console.log('EMS adjustment engine tests passed: 11 assertions');
