@@ -233,7 +233,7 @@ function renderReport(){
  const bought=p.reduce((sum,x)=>sum+Number(x.amount||0),0),refund=adj.reduce((sum,x)=>sum+Number(x.refund_amount||0),0);
  $('rSpend').textContent=money(bought-refund);$('rCount').textContent=p.length;$('rUnique').textContent=new Set(p.map(x=>String(x.item_name||'').trim().toLocaleLowerCase())).size;
  const cats={},items={};p.forEach(x=>{cats[x.category]=(cats[x.category]||0)+Number(x.amount||0);const k=x.item_name+' ('+x.unit+')';items[k]=(items[k]||0)+Number(x.amount||0)});
- adj.filter(x=>Number(x.refund_amount)>0).forEach(x=>{const purchase=purchases.find(y=>String(y.id)===String(x.purchase_id));if(!purchase)return;cats[purchase.category]=(cats[purchase.category]||0)-Number(x.refund_amount);const k=purchase.item_name+' ('+purchase.unit+')';items[k]=(items[k]||0)-Number(x.refund_amount)});
+ adj.filter(x=>Number(x.refund_amount)>0).forEach(x=>{const purchase=[...purchases,...trash].find(y=>String(y.id)===String(x.purchase_id));if(!purchase)return;cats[purchase.category]=(cats[purchase.category]||0)-Number(x.refund_amount);const k=purchase.item_name+' ('+purchase.unit+')';items[k]=(items[k]||0)-Number(x.refund_amount)});
  $('rCats').innerHTML=Object.entries(cats).sort((a,b)=>b[1]-a[1]).map(([k,v])=>'<div class="item"><div>'+esc(k)+'</div><div class="right">'+money(v)+'</div></div>').join('')||'<div class="empty">No purchases or refunds in this period.</div>';
  $('rUsed').innerHTML=Object.entries(items).sort((a,b)=>b[1]-a[1]).map(([k,v])=>'<div class="item"><div>'+esc(k)+'</div><div class="right">'+money(v)+'</div></div>').join('')||'<div class="empty">No purchases or refunds in this period.</div>';
 }$('runReport').onclick=renderReport;$('printReport').onclick=()=>{go('reports');window.print()};
