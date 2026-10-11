@@ -11,6 +11,8 @@ const required = [
   ['row-level security scoped purchase update', /\.update\(changes\)\.eq\('id',id\)\.eq\('user_id',user\.id\)/],
   ['row-level security scoped purchase delete', /\.delete\(\)\.eq\('id',p\.id\)\.eq\('user_id',user\.id\)/],
   ['new purchases eligible for forecast training', /forecast_eligible:true/],
+  ['receipt total discrepancy is checked', /receiptTotal[\s\S]*?itemsTotal[\s\S]*?confirm\(/],
+  ['receipt mismatch is retained in note', /Receipt total '\+money\(receiptTotal\)/],
   ['forecast engine used by dashboard', /EMSForecast\.predict\(purchases\)/],
   ['manual usage form not exposed as a visible tab', !/data-view="usage"|id="useTab"/.test(html)]
 ];
