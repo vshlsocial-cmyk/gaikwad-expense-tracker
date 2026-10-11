@@ -14,12 +14,12 @@ Date: 2026-10-11
 
 ## Release checks still outstanding
 - GitHub Actions run 38126393058 completed successfully after the receipt-total warning and app-contract updates. Manifest, service-worker syntax, forecast tests, app-contract checks, inline JavaScript syntax, and required-file checks all passed.
-- A real-browser smoke test is not yet confirmed. Authentication, create/edit/delete, reports, CSV export and password recovery must be tested on the hosted app before calling the release complete.
+- A real-browser smoke test is not yet confirmed. Static CI validates syntax and contracts, not the complete authenticated user journey. Authentication, create/edit/delete, reports, CSV export and password recovery must be tested on the hosted app before calling the release complete.
 - Android Chrome installation and app launch have not been verified on a device.
 - No automated browser testing is claimed.
 
 ## Known product scope gaps
-A basic receipt-total mismatch warning is present, but discount/fee allocation and a persisted receipt-level total are not complete. Return/refund linkage, recycle-bin/restore, saved delivery locations, verified retailer comparisons, and distinct brand/variant/pack-size product identity are not complete yet. Basic print-to-PDF for the current report is present; polished multi-report PDF exports remain outstanding. This report is intentionally honest about what remains.
+A basic receipt-total mismatch warning is present, but discount/fee allocation and a persisted receipt-level total are not complete. Return/refund linkage and recycle-bin/restore have now been implemented on the staging branch and covered by static contract tests. Configurable 7/30/90-day recycle retention and explicit expired-entry cleanup are present, but cleanup has not been exercised against live data. Saved delivery locations and verified retailer comparisons remain outstanding. Brand/variant/pack-size fields and forecasting separation are implemented. Basic print-to-PDF for the current report is present; polished multi-report PDF exports remain outstanding. This report is intentionally honest about what remains.
 
 ## Release decision
 Keep the PR in staging until current CI is green and basic browser smoke tests pass. No paid infrastructure, paid branch or paid service has been used.
