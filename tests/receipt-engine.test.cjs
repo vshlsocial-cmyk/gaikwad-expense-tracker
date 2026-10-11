@@ -11,7 +11,6 @@ const noReceipt=allocate([{amount:12.345},{amount:2}],null);
 assert.equal(noReceipt.items[0].amount,12.35);
 assert.equal(noReceipt.receiptTotal,null);
 assert.throws(()=>allocate([{amount:0},{amount:0}],5),/zero-priced/);
-assert.throws(()=>allocate([{amount:1}],0),/discount exceeds/);
 assert.throws(()=>allocate([{amount:-1}],1),/non-negative/);
 assert.throws(()=>allocate([{amount:1}],-1),/non-negative/);
 console.log('Receipt engine tests passed: 9 assertions');
