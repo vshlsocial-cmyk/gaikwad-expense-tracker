@@ -26,6 +26,8 @@ jobs:
         run: node --check sw.js
       - name: Run forecast engine unit tests
         run: node tests/forecast-engine.test.cjs
+      - name: Run return and refund engine unit tests
+        run: node tests/adjustment-engine.test.cjs
       - name: Run app contract checks
         run: node tests/app-contract.test.cjs
       - name: Check inline application JavaScript syntax
