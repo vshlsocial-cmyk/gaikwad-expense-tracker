@@ -46,7 +46,8 @@ const required = [
   ['CSV backup includes adjustments and deleted purchases', /rows\.push\(\['deleted_purchase'/.test(html) && /rows\.push\(\['adjustment'/.test(html)],
   ['recycle-bin retention supports 7, 30 and 90 days', /option value="7"/.test(html) && /option value="30"/.test(html) && /option value="90"/.test(html)],
   ['expired recycle-bin cleanup is explicit and confirmed', /cleanupTrash[\s\S]*?confirm\('Permanently remove/.test(html)],
-  ['linked adjustment rows are deleted before expired purchase cleanup', /purchase_adjustments'\)\.delete\(\)[\s\S]*?purchases'\)\.delete\(\)/.test(html)]
+  ['expired cleanup calls the atomic database RPC', /rpc\('cleanup_expired_ems_purchases',\{p_retention_days:days\}\)/.test(html)],
+  ['atomic cleanup migration is included in setup and is account scoped', /cleanup_expired_ems_purchases/.test(fs.readFileSync('setup.sql','utf8')) && /auth\.uid\(\)/.test(fs.readFileSync('migrations/phase19_atomic_recycle_cleanup.sql','utf8')) && /p_retention_days not in \(7, 30, 90\)/.test(fs.readFileSync('migrations/phase19_atomic_recycle_cleanup.sql','utf8'))]
 ];
 
 for (const [label, check] of required) {
