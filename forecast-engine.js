@@ -24,8 +24,11 @@
       const key=[name.toLocaleLowerCase(),brand.toLocaleLowerCase(),variant.toLocaleLowerCase(),pack.toLocaleLowerCase(),n.key].join('|');
       if(!groups.has(key))groups.set(key,{name,brand,variant,pack_size:pack,unit:n.unit,events:new Map()});
       const g=groups.get(key),date=String(p.purchase_date);
+      const a=adjByPurchase.get(String(p.id))||{qty:0};
+      const retainedQty=Math.max(0,n.quantity-Math.min(n.quantity,a.qty));
+      if(retainedQty<=0)return;
       if(!g.events.has(date))g.events.set(date,{date,qty:0,cost:0});
-      const e=g.events.get(date),a=adjByPurchase.get(String(p.id))||{qty:0,refund:0};e.qty+=Math.max(0,n.quantity-Math.min(n.quantity,a.qty));e.cost+=Math.max(0,Number(p.amount||0)-Math.min(Number(p.amount||0),a.refund));
+      const e=g.events.get(date);e.qty+=retainedQty;e.cost+=Math.max(0,Number(p.amount||0))*(n.quantity>0?retainedQty/n.quantity:0);
     });
     const out=[];
     groups.forEach(g=>{
