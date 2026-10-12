@@ -246,13 +246,14 @@ function renderReport(){
  $('rCats').innerHTML=Object.entries(cats).sort((a,b)=>b[1]-a[1]).map(([k,v])=>'<div class="item"><div>'+esc(k)+'</div><div class="right">'+money(v)+'</div></div>').join('')||'<div class="empty">No purchases or refunds in this period.</div>';
  $('rUsed').innerHTML=Object.entries(items).sort((a,b)=>b[1]-a[1]).map(([k,v])=>'<div class="item"><div>'+esc(k)+'</div><div class="right">'+money(v)+'</div></div>').join('')||'<div class="empty">No purchases or refunds in this period.</div>';
 }$('runReport').onclick=renderReport;$('printReport').onclick=()=>{go('reports');window.print()};
-function retailerSearchLinks(query){
- const q=encodeURIComponent(query);
+function retailerSearchLinks(query, location){
+ const searchTerm=[query,location&&location.city,location&&location.postal_code].filter(Boolean).join(' ');
+ const q=encodeURIComponent(searchTerm);
  const providers=[
-  ['Blinkit','https://www.google.com/search?q='+encodeURIComponent('site:blinkit.com '+query)],
-  ['Zepto','https://www.google.com/search?q='+encodeURIComponent('site:zeptonow.com '+query)],
-  ['Instamart','https://www.google.com/search?q='+encodeURIComponent('site:swiggy.com/instamart '+query)],
-  ['BigBasket','https://www.google.com/search?q='+encodeURIComponent('site:bigbasket.com '+query)],
+  ['Blinkit','https://www.google.com/search?q='+encodeURIComponent('site:blinkit.com '+searchTerm)],
+  ['Zepto','https://www.google.com/search?q='+encodeURIComponent('site:zeptonow.com '+searchTerm)],
+  ['Instamart','https://www.google.com/search?q='+encodeURIComponent('site:swiggy.com/instamart '+searchTerm)],
+  ['BigBasket','https://www.google.com/search?q='+encodeURIComponent('site:bigbasket.com '+searchTerm)],
   ['Amazon India','https://www.amazon.in/s?k='+q],
   ['Flipkart','https://www.flipkart.com/search?q='+q]
  ];
@@ -262,12 +263,13 @@ $('comparePlan').onclick=()=>{
  const wanted=$('planText').value.split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
  if(!wanted.length){msg('planMsg','Enter at least one item, one per line.','error');return}
  const rows=[];
+ const selectedLocation=locations.find(x=>String(x.id)===$('planLocation').value);
  for(const query of wanted){
   const norm=v=>String(v||'').toLocaleLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,' ').trim();
   const q=norm(query), exact=purchases.filter(p=>norm(p.item_name)===q);
   const candidates=exact.length?exact:purchases.filter(p=>{const n=norm(p.item_name);return n.includes(q)||q.includes(n)}).filter(p=>norm(p.item_name).length>1);
   const identities=[...new Set(candidates.map(p=>String(p.item_name||'').trim()))];
-  if(!candidates.length){rows.push('<div class="linecard"><strong>'+esc(query)+'</strong><p class="small">No matching item in purchase history. Add a purchase first or check spelling.</p>'+retailerSearchLinks(query)+'</div>');continue}
+  if(!candidates.length){rows.push('<div class="linecard"><strong>'+esc(query)+'</strong><p class="small">No matching item in purchase history. Add a purchase first or check spelling.</p>'+retailerSearchLinks(query, selectedLocation)+'</div>');continue}
   const identityKey=p=>[p.item_name,p.brand,p.variant,p.pack_size].map(v=>String(v||'').trim().toLocaleLowerCase()).join('|');
   const identityGroups=[...new Map(candidates.map(p=>[identityKey(p),p])).values()];
   if((!exact.length&&identities.length!==1)||(exact.length&&identityGroups.length>1)){
@@ -291,7 +293,6 @@ $('comparePlan').onclick=()=>{
   rows.push('<div class="linecard"><strong>'+esc(query)+'</strong>'+options.map((x,i)=>'<div class="item"><div><strong>'+esc(x.shop)+'</strong><div class="small">'+(x.identity?esc(x.identity)+' · ':'')+esc(x.date)+' · per '+esc(x.unit)+(i===0?' · lowest historical reference':'')+'</div></div><div class="right">'+money(x.price)+'</div></div>').join('')+'</div>'+retailerSearchLinks(query));
  }
  $('planResults').innerHTML=rows.join('');
- const selectedLocation=locations.find(x=>String(x.id)===$('planLocation').value);
  msg('planMsg','Compared '+wanted.length+' list item(s) against recorded purchases.'+(selectedLocation?' Saved delivery location selected: '+selectedLocation.label+'.':'')+' Prices are historical; no live retailer offers, stock, delivery fees or ETAs are checked. Location selection is saved for planning context only and does not verify serviceability.','success');
 };
 $('export').onclick=()=>{const rows=[['type','date','item','brand','variant','pack_size','quantity','unit','amount_inr','category','shop','spent_by','description','purchase_id','adjustment_type','physically_returned','deleted_at','item_subtotal','receipt_total','receipt_items_total','receipt_adjustment','receipt_adjustment_type']];purchases.forEach(x=>rows.push(['purchase',x.purchase_date,x.item_name,x.brand||'',x.variant||'',x.pack_size||'',x.quantity,x.unit,x.amount,x.category,x.source||'',x.spent_by||'',x.description||'',x.id,'','','',x.item_subtotal??'',x.receipt_total??'',x.receipt_items_total??'',x.receipt_adjustment??0,x.receipt_adjustment_type||'']));trash.forEach(x=>rows.push(['deleted_purchase',x.purchase_date,x.item_name,x.brand||'',x.variant||'',x.pack_size||'',x.quantity,x.unit,x.amount,x.category,x.source||'',x.spent_by||'',x.description||'',x.id,'','',x.deleted_at||'',x.item_subtotal??'',x.receipt_total??'',x.receipt_items_total??'',x.receipt_adjustment??0,x.receipt_adjustment_type||'']));adjustments.forEach(x=>{const p=purchases.find(y=>String(y.id)===String(x.purchase_id))||trash.find(y=>String(y.id)===String(x.purchase_id));rows.push(['adjustment',x.adjustment_date,p?p.item_name:'',p?p.brand||'':'',p?p.variant||'':'',p?p.pack_size||'':'',x.quantity_returned,p?p.unit:'',x.refund_amount,p?p.category:'','','',x.note||'',x.purchase_id,x.adjustment_type,x.physically_returned,''])});usages.forEach(x=>rows.push(['usage',x.usage_date,x.item_name,x.quantity,x.unit,'','','','',x.description||'']));const csv=rows.map(r=>r.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(',')).join('\r\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));a.download='gaikwad-expense-tracker-backup-'+ds(today)+'.csv';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
