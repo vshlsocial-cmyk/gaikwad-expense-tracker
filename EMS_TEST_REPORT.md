@@ -1,12 +1,12 @@
 # EMS staging validation report
 
-Date: 2026-10-11
+Date: 2026-10-12
 
 ## Verified through connected tools
 - Supabase schema inspected; `forecast_eligible` exists as a non-null boolean defaulting to false.
 - Purchase and usage tables were cleared for a fresh start; post-reset counts were verified as zero.
 - Family-member and shop preference lists were preserved.
-- GitHub Actions run 38128924515 completed successfully, including manifest validation, service-worker syntax, forecast-engine tests, adjustment-engine tests, app-contract checks, inline application JavaScript syntax, PWA-file checks, and job cleanup.
+- GitHub Actions run 38129182082 completed successfully, including manifest validation, service-worker syntax, forecast-engine tests, adjustment-engine tests, receipt-engine tests, app-contract checks, inline application JavaScript syntax, PWA-file checks, and job cleanup.
 - Added searchable purchase history with edit/delete actions scoped by both purchase ID and signed-in user ID.
 - Added a dedicated app-contract test and included it in the free GitHub Actions workflow.
 - Purchase-pattern screen now describes estimates from purchase history rather than implying physical stock can be known without usage logs.
@@ -19,7 +19,7 @@ Date: 2026-10-11
 - No automated browser testing is claimed.
 
 ## Known product scope gaps
-Receipt reconciliation is implemented on staging: the entered receipt total, pre-adjustment item subtotal, receipt item total, allocated difference, and adjustment type are persisted on each basket line. Discounts/fees are allocated proportionally with a rounding remainder on the final line; this is line-level allocation, not a separate receipt ledger. Return/refund linkage and recycle-bin/restore are implemented on staging and covered by static contract tests. Database triggers are applied in the connected Supabase project to enforce purchase ownership and cumulative return/refund limits; trigger existence was verified through PostgreSQL metadata. Configurable 7/30/90-day recycle retention and explicit expired-entry cleanup are present, but cleanup has not been exercised against live data. The live website could not be reached from this runtime for browser verification, so authenticated end-to-end behavior remains unverified. The shopping planner compares historical purchase records only. It normalizes text spelling/case/punctuation, warns about ambiguous product identities, and displays recorded brand/variant/pack details where available rather than merging those identities automatically. Live retailer prices, verified stock, delivery fees/ETAs, basket splitting, and saved delivery locations remain outstanding. Brand/variant/pack-size fields and forecasting separation are implemented. Basic print-to-PDF for the current report is present; polished multi-report PDF exports remain outstanding. This report is intentionally honest about what remains.
+Receipt reconciliation is implemented on staging with a dedicated tested allocation engine: the entered receipt total, pre-adjustment item subtotal, receipt item total, allocated difference, and adjustment type are persisted on each basket line. Discounts/fees are allocated proportionally with a rounding remainder on the final line; this is line-level allocation, not a separate receipt ledger. Return/refund linkage and recycle-bin/restore are implemented on staging and covered by static contract tests. Database triggers are applied in the connected Supabase project to enforce purchase ownership and cumulative return/refund limits; trigger existence was verified through PostgreSQL metadata. Configurable 7/30/90-day recycle retention and explicit expired-entry cleanup are present, but cleanup has not been exercised against live data. The live website could not be reached from this runtime for browser verification, so authenticated end-to-end behavior remains unverified. The shopping planner compares historical purchase records only. It normalizes text spelling/case/punctuation, warns about ambiguous product identities, and displays recorded brand/variant/pack details where available rather than merging those identities automatically. Live retailer prices, verified stock, delivery fees/ETAs, basket splitting, and saved delivery locations remain outstanding. Brand/variant/pack-size fields and forecasting separation are implemented. Basic print-to-PDF for the current report is present; polished multi-report PDF exports remain outstanding. This report is intentionally honest about what remains.
 
 ## Release decision
 Keep the PR in staging until current CI is green and basic browser smoke tests pass. No paid infrastructure, paid branch or paid service has been used.
