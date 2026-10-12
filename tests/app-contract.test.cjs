@@ -5,6 +5,7 @@ const html = fs.readFileSync('index.html', 'utf8');
 const required = [
   ['service worker cache version is explicitly versioned and old caches are removed', /const CACHE_NAME = "ems-shell-v2"/.test(fs.readFileSync('sw.js','utf8')) && /keys\.filter\(key => key\.startsWith\("ems-shell-"\) && key !== CACHE_NAME\)/.test(fs.readFileSync('sw.js','utf8'))],
   ['PWA manifest link', /rel="manifest" href="\.\/manifest\.webmanifest"/],
+  ['seven-tab navigation remains horizontally scrollable on narrow screens', /\.nav\\\{display:flex;gap:5px;position:sticky;top:0;background:var\\\(--bg\\\);z-index:5;padding:8px 0;overflow-x:auto/.test(html) && /\.nav button\\\{flex:1 0 72px/.test(html)],
   ['data loader query count matches six result slots', /const \[p,t,a,u,m,s\]=await Promise\.all\(\[[\s\S]*?db\.from\('shops'\)\.select\('\*'\)\.order\('name'\)\s*\]\)/.test(html)],
   ['shopping planner view is present', /id="view-planner"/.test(html)],
   ['shopping planner offers retailer search links without claiming live price verification', /function retailerSearchLinks\(query, location\)/.test(html) && (html.match(/retailerSearchLinks\(query, selectedLocation\)/g)||[]).length===3 && /Check current listings manually/.test(html) && /no live retailer offers/.test(html)],
