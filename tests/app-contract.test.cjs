@@ -6,7 +6,7 @@ const required = [
   ['PWA manifest link', /rel="manifest" href="\.\/manifest\.webmanifest"/],
   ['data loader query count matches six result slots', /const \[p,t,a,u,m,s\]=await Promise\.all\(\[[\s\S]*?db\.from\('shops'\)\.select\('\*'\)\.order\('name'\)\s*\]\)/.test(html)],
   ['shopping planner view is present', /id="view-planner"/.test(html)],
-  ['shopping planner offers retailer search links without claiming live price verification', /function retailerSearchLinks\(query\)/.test(html) && /Check current listings manually/.test(html) && /no live retailer offers/.test(html)],
+  ['shopping planner offers retailer search links without claiming live price verification', /function retailerSearchLinks\(query, location\)/.test(html) && /Check current listings manually/.test(html) && /no live retailer offers/.test(html)],
   ['saved delivery locations UI and account-scoped table are wired', /id="deliveryLocations"/.test(html) && /from\('delivery_locations'\)/.test(html) && /user_id:user.id,label,address/.test(html)],
   ['planner does not claim saved locations verify serviceability', /does not verify serviceability/.test(html)],
   ['shopping planner labels comparisons as historical rather than live', /historical references, not live retailer prices/.test(html) && /no live retailer offers/.test(html)],
