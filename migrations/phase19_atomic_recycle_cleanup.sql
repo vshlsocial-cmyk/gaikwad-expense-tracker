@@ -15,7 +15,7 @@ begin
   if auth.uid() is null then
     raise exception 'Authentication required';
   end if;
-  if p_retention_days not in (7, 30, 90) then
+  if p_retention_days is null or p_retention_days not in (7, 30, 90) then
     raise exception 'Retention must be 7, 30, or 90 days';
   end if;
 
