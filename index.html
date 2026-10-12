@@ -293,7 +293,7 @@ $('comparePlan').onclick=()=>{
    const chosen=$('planMode').value==='lowest'?items.reduce((a,b)=>a.price<=b.price?a:b):items[items.length-1];
    return {shop,...chosen,identity:[chosen.p.brand,chosen.p.variant,chosen.p.pack_size].filter(Boolean).join(' · ')};
   }).sort((a,b)=>a.price-b.price);
-  rows.push('<div class="linecard"><strong>'+esc(query)+'</strong>'+options.map((x,i)=>'<div class="item"><div><strong>'+esc(x.shop)+'</strong><div class="small">'+(x.identity?esc(x.identity)+' · ':'')+esc(x.date)+' · per '+esc(x.unit)+(i===0?' · lowest historical reference':'')+'</div></div><div class="right">'+money(x.price)+'</div></div>').join('')+'</div>'+retailerSearchLinks(query));
+  rows.push('<div class="linecard"><strong>'+esc(query)+'</strong>'+options.map((x,i)=>'<div class="item"><div><strong>'+esc(x.shop)+'</strong><div class="small">'+(x.identity?esc(x.identity)+' · ':'')+esc(x.date)+' · per '+esc(x.unit)+(i===0?' · lowest historical reference':'')+'</div></div><div class="right">'+money(x.price)+'</div></div>').join('')+'</div>'+retailerSearchLinks(query, selectedLocation));
  }
  $('planResults').innerHTML=rows.join('');
  msg('planMsg','Compared '+wanted.length+' list item(s) against recorded purchases.'+(selectedLocation?' Saved delivery location selected: '+selectedLocation.label+'.':'')+' Prices are historical; no live retailer offers, stock, delivery fees or ETAs are checked. Location selection is saved for planning context only and does not verify serviceability.','success');
