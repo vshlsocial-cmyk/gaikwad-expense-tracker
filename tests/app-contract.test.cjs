@@ -23,6 +23,7 @@ const required = [
   ['receipt allocation engine is loaded and used', /receipt-engine\.js/.test(html) && /EMSReceipt\.allocate\(lines,receiptTotal\)/.test(html)],
   ['receipt reconciliation fields are persisted on purchase lines', /item_subtotal:x\.amount-x\.receipt_adjustment[\s\S]*receipt_total:receiptTotal[\s\S]*receipt_adjustment:receiptTotal/ .test(html)],
   ['CSV backup includes receipt reconciliation fields', /'item_subtotal','receipt_total','receipt_items_total','receipt_adjustment','receipt_adjustment_type'/.test(html)],
+  ['CSV backup includes saved family members, shops and delivery locations', /members\.forEach\(x=>\{const row=Array\(26\)\.fill\(''\);row\[0\]='family_member'/.test(html) && /shops\.forEach\(x=>\{const row=Array\(26\)\.fill\(''\);row\[0\]='shop'/.test(html) && /locations\.forEach\(x=>\{const row=Array\(26\)\.fill\(''\);row\[0\]='delivery_location'/.test(html)],
 
   ['receipt reconciliation details are persisted on each purchase line', /receipt_total:receiptTotal[\s\S]*receipt_items_total:receiptTotal===null\?null:itemsTotal/],
   ['forecast engine uses return/refund adjustments', /EMSForecast\.predict\(purchases,adjustments\)/],
