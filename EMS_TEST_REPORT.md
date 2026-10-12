@@ -2,13 +2,13 @@
 
 Date: 2026-10-12
 
-Latest staging changes: added saved delivery locations (name, address, optional city/PIN) under a dedicated table with row-level security, and manual retailer search links that use optional city/PIN context. These are planning aids, not live price or serviceability verification.
+Latest staging changes: added saved delivery locations (name, address, optional city/PIN) under a dedicated table with row-level security, and manual retailer search links that use optional city/PIN context. These are planning aids, not live price or serviceability verification. The location-aware planner contract and all other static checks passed in GitHub Actions run 38205569580.
 
 ## Verified through connected tools
 - Supabase schema inspected; `forecast_eligible` exists as a non-null boolean defaulting to false.
 - Purchase and usage tables were cleared for a fresh start; post-reset counts were verified as zero.
 - Family-member and shop preference lists were preserved.
-- GitHub Actions run 38205447414 completed successfully after the saved-location UI, retailer search links, and corresponding contract tests were added, including manifest validation, service-worker syntax, forecast-engine tests, adjustment-engine tests, receipt-engine tests, app-contract checks, inline application JavaScript syntax, PWA-file checks, and job cleanup.
+- GitHub Actions run 38205569580 completed successfully after the saved-location UI, location-aware retailer search links, and corresponding contract tests were added, including manifest validation, service-worker syntax, forecast-engine tests, adjustment-engine tests, receipt-engine tests, app-contract checks, inline application JavaScript syntax, PWA-file checks, and job cleanup.
 - Added searchable purchase history with edit/delete actions scoped by both purchase ID and signed-in user ID.
 - Added a dedicated app-contract test and included it in the free GitHub Actions workflow.
 - Purchase-pattern screen now describes estimates from purchase history rather than implying physical stock can be known without usage logs.
