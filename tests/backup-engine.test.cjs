@@ -1,6 +1,45 @@
 const assert = require('node:assert/strict');
 const { serialize } = require('../backup-engine.js');
 
+function parseCsv(input) {
+  const rows = [];
+  let row = [];
+  let cell = '';
+  let quoted = false;
+  for (let i = 0; i < input.length; i++) {
+    const ch = input[i];
+    if (quoted) {
+      if (ch === '"' && input[i + 1] === '"') {
+        cell += '"';
+        i++;
+      } else if (ch === '"') {
+        quoted = false;
+      } else {
+        cell += ch;
+      }
+    } else if (ch === '"') {
+      quoted = true;
+    } else if (ch === ',') {
+      row.push(cell);
+      cell = '';
+    } else if (ch === '\r' && input[i + 1] === '\n') {
+      row.push(cell);
+      rows.push(row);
+      row = [];
+      cell = '';
+      i++;
+    } else {
+      cell += ch;
+    }
+  }
+  if (row.length || cell.length) {
+    row.push(cell);
+    rows.push(row);
+  }
+  assert.equal(quoted, false, 'CSV ends outside a quoted cell');
+  return rows;
+}
+
 const rows = [
  ['type','item','note'],
  ['purchase','Rice','plain'],
@@ -10,16 +49,11 @@ const rows = [
  ['shop','A short row']
 ];
 const csv = serialize(rows);
-const parsedLines = csv.split('\r\n');
-assert.equal(parsedLines.length, rows.length, 'one CSV record per input row');
-const fields = parsedLines.map(line => {
-  const count = (line.match(/,/g) || []).length + 1;
-  return count;
-});
-assert.ok(fields.every(n => n === 3), 'all rows are padded to consistent column count');
-assert.ok(csv.includes('"Tea, green","contains, comma"'), 'commas are quoted safely');
-assert.ok(csv.includes('"said ""hello"""'), 'embedded quotes are escaped');
-assert.ok(csv.includes('"first line\nsecond line"'), 'embedded newlines remain inside quoted cells');
-assert.ok(csv.endsWith('"shop","A short row",""'), 'short rows are padded');
+const parsed = parseCsv(csv);
+assert.equal(parsed.length, rows.length, 'one CSV record per input row, including embedded newlines');
+assert.ok(parsed.every(row => row.length === 3), 'all records have consistent column counts');
+assert.deepEqual(parsed.slice(0, rows.length - 1), rows.slice(0, rows.length - 1), 'commas, quotes and embedded newlines round-trip');
+assert.deepEqual(parsed.at(-1), ['shop','A short row',''], 'short rows are padded');
 assert.equal(serialize([]), '', 'empty input produces empty CSV');
-console.log('EMS backup serializer tests passed: 7 assertions');
+assert.deepEqual(parseCsv(serialize([['',''],['a','b']])), [['',''],['a','b']], 'empty cells round-trip');
+console.log('EMS backup serializer tests passed: 6 assertions');
