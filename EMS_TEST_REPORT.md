@@ -27,3 +27,6 @@ Receipt reconciliation is implemented on staging with a dedicated tested allocat
 
 ## Release decision
 Keep the PR in staging until current CI is green and basic browser smoke tests pass. No paid infrastructure, paid branch or paid service has been used.
+
+
+Latest staging work (2026-10-12): the seven-tab navigation now scrolls horizontally on narrow screens and has a contract check. Recycle-bin cleanup now calls `cleanup_expired_ems_purchases`, an account-scoped SECURITY INVOKER PostgreSQL function that validates retention (7/30/90 days) and deletes adjustment and purchase rows in one transaction. The function was added in `migrations/phase19_atomic_recycle_cleanup.sql` and to `setup.sql`; the additive function migration was applied to the connected Supabase project. CI run 38209824604 passed all configured checks. No purchase or adjustment rows were created, changed, or deleted as part of this change. Real-browser and Android installation testing are still outstanding.
