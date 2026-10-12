@@ -41,7 +41,7 @@ const required = [
   ['deleted purchases can be restored with user scoping', /window\.restorePurchase[\s\S]*?update\(\{deleted_at:null,deleted_reason:null\}\)[\s\S]*?\.eq\('user_id',user\.id\)/.test(html)],
   ['purchase adjustment limits are validated before save', /EMSAdjustments\.validate\(p,draft,adjustments\)/.test(html)],
   ['reports subtract refunds in the selected adjustment-date range', /adj=adjustments\.filter\(x=>x\.adjustment_date>=a&&x\.adjustment_date<=b\)/.test(html) && /bought-refund/.test(html)],
-  ['refund category and item attribution includes recycle-bin purchases', /\[\.\.\.purchases,\.\.\.trash\]\.find\(y=>String\(y\.id\)===String\(x\.purchase_id\)\)/.test(html)],
+  ['date-range reports keep refunds in a separate adjustment-date bucket', /cats\['Refunds'\]=\(cats\['Refunds'\]\|\|0\)-refundAmount/.test(html) && /items\['Refunds \/ adjustments'\]=\(items\['Refunds \/ adjustments'\]\|\|0\)-refundAmount/.test(html)],
   ['CSV backup includes adjustments and deleted purchases', /rows\.push\(\['deleted_purchase'/.test(html) && /rows\.push\(\['adjustment'/.test(html)],
   ['recycle-bin retention supports 7, 30 and 90 days', /option value="7"/.test(html) && /option value="30"/.test(html) && /option value="90"/.test(html)],
   ['expired recycle-bin cleanup is explicit and confirmed', /cleanupTrash[\s\S]*?confirm\('Permanently remove/.test(html)],
