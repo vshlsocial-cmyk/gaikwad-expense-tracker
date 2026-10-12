@@ -6,6 +6,8 @@ const required = [
   ['PWA manifest link', /rel="manifest" href="\.\/manifest\.webmanifest"/],
   ['data loader query count matches six result slots', /const \[p,t,a,u,m,s\]=await Promise\.all\(\[[\s\S]*?db\.from\('shops'\)\.select\('\*'\)\.order\('name'\)\s*\]\)/.test(html)],
   ['shopping planner view is present', /id="view-planner"/.test(html)],
+  ['saved delivery locations UI and account-scoped table are wired', /id="deliveryLocations"/.test(html) && /from\('delivery_locations'\)/.test(html) && /user_id:user.id,label,address/.test(html)],
+  ['planner does not claim saved locations verify serviceability', /does not verify serviceability/.test(html)],
   ['shopping planner labels comparisons as historical rather than live', /historical references, not live retailer prices/.test(html) && /no live retailer offers/.test(html)],
   ['shopping planner normalizes names and preserves distinct product identities', /normalize\('NFKD'\)\.replace\(\/\[\\u0300-\\u036f\]\//.test(html) && /will not merge brands, variants or pack sizes/.test(html)],
   ['shopping planner displays recorded brand variant and pack details', /identity:\[chosen\.p\.brand,chosen\.p\.variant,chosen\.p\.pack_size\]/.test(html) && /x\.identity\?esc\(x\.identity\)/.test(html)],
