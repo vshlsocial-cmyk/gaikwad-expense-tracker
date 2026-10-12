@@ -1,4 +1,4 @@
-const CACHE_NAME = "ems-shell-v1";
+const CACHE_NAME = "ems-shell-v2";
 const APP_SHELL = [
   "./install.html",
   "./index.html",
