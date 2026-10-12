@@ -16,7 +16,7 @@
   }
   function predict(purchases, adjustments){
     const groups=new Map(), adjByPurchase=new Map();
-    (adjustments||[]).forEach(a=>{const k=String(a.purchase_id);if(!adjByPurchase.has(k))adjByPurchase.set(k,{qty:0,refund:0});const z=adjByPurchase.get(k);z.qty+=Math.max(0,Number(a.quantity_returned)||0);z.refund+=Math.max(0,Number(a.refund_amount)||0)});
+    (adjustments||[]).forEach(a=>{const k=String(a.purchase_id);if(!adjByPurchase.has(k))adjByPurchase.set(k,{qty:0,refund:0});const z=adjByPurchase.get(k);if(a.physically_returned===true)z.qty+=Math.max(0,Number(a.quantity_returned)||0)});
     (purchases||[]).forEach(p=>{
       const name=String(p.item_name||'').trim();
       if(!name||!p.purchase_date||p.forecast_eligible!==true)return;
