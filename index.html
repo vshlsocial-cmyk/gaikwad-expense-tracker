@@ -277,7 +277,7 @@ $('comparePlan').onclick=()=>{
   const identityGroups=[...new Map(candidates.map(p=>[identityKey(p),p])).values()];
   if((!exact.length&&identities.length!==1)||(exact.length&&identityGroups.length>1)){
    const labels=[...new Set(candidates.map(p=>[String(p.item_name||'').trim(),p.brand,p.variant,p.pack_size].filter(Boolean).join(' · ')))];
-   rows.push('<div class="linecard"><strong>'+esc(query)+'</strong><p class="small">Possible product identities — review these before comparing; EMS will not merge brands, variants or pack sizes automatically.</p>'+labels.map(n=>'<div class="item"><div>'+esc(n)+'</div></div>').join('')+retailerSearchLinks(query)+'</div>');continue
+   rows.push('<div class="linecard"><strong>'+esc(query)+'</strong><p class="small">Possible product identities — review these before comparing; EMS will not merge brands, variants or pack sizes automatically.</p>'+labels.map(n=>'<div class="item"><div>'+esc(n)+'</div></div>').join('')+retailerSearchLinks(query, selectedLocation)+'</div>');continue
   }
   const matches=candidates;
   const byShop=new Map();
