@@ -12,6 +12,7 @@ const required = [
   ['shopping planner labels comparisons as historical rather than live', /historical references, not live retailer prices/.test(html) && /no live retailer offers/.test(html)],
   ['shopping planner normalizes names and preserves distinct product identities', /normalize\('NFKD'\)\.replace\(\/\[\\u0300-\\u036f\]\//.test(html) && /will not merge brands, variants or pack sizes/.test(html)],
   ['shopping planner displays recorded brand variant and pack details', /identity:\[chosen\.p\.brand,chosen\.p\.variant,chosen\.p\.pack_size\]/.test(html) && /x\.identity\?esc\(x\.identity\)/.test(html)],
+  ['PDF print action refreshes report and includes selected date range', /id="printRange"/.test(html) && /printReport'\)\.onclick=\(\)=>\{renderReport\(\);go\('reports'\);window\.print\(\)\}/.test(html)],
   ['searchable purchase history view', /id="view-history"/],
   ['purchase search field', /id="historySearch"/],
   ['edit purchase form', /id="editPurchaseForm"/],
