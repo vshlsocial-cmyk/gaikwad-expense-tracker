@@ -2,7 +2,7 @@
 
 Date: 2026-10-12
 
-Latest automated run: [38207129865](https://github.com/vshlsocial-cmyk/gaikwad-expense-tracker/actions/runs/38207129865) passed all configured static and unit checks after forecast return handling and PWA cache version were updated. This remains automated validation only; it does not replace authenticated browser or Android device testing.
+Latest automated run: [38208728975](https://github.com/vshlsocial-cmyk/gaikwad-expense-tracker/actions/runs/38208728975) passed all configured static and unit checks, including CSV backup serialization and report-contract checks. This remains automated validation only; it does not replace authenticated browser or Android device testing.
 
 Latest staging changes: added saved delivery locations (name, address, optional city/PIN) under a dedicated table with row-level security, and manual retailer search links that use optional city/PIN context. These are planning aids, not live price or serviceability verification. The location-aware planner, CSV preference export, and date-filtered PDF refresh contracts passed in GitHub Actions run 38205886980.
 
@@ -17,7 +17,7 @@ Latest staging changes: added saved delivery locations (name, address, optional 
 - Product entry, edit, history, CSV, and forecast grouping now carry optional brand, variant, and descriptive pack-size identity. Forecast tests cover distinct product identities; `phase14_product_identity.sql` is additive and has not been applied to the connected database.
 
 ## Release checks still outstanding
-- GitHub Actions run 38126393058 completed successfully after the receipt-total warning and app-contract updates. Manifest, service-worker syntax, forecast tests, app-contract checks, inline JavaScript syntax, and required-file checks all passed.
+- GitHub Actions run 38208728975 completed successfully after CSV backup parser tests and report refund-bucket changes. CSV tests parse quoted records and validate commas, embedded quotes, embedded newlines, empty cells, and consistent columns. Refunds now appear in a separate negative “Refunds” bucket for the selected adjustment-date range.
 - A real-browser smoke test is not yet confirmed. Static CI validates syntax and contracts, not the complete authenticated user journey. Authentication, create/edit/delete, reports, CSV export and password recovery must be tested on the hosted app before calling the release complete.
 - Android Chrome installation and app launch have not been verified on a device.
 - No automated browser testing is claimed.
