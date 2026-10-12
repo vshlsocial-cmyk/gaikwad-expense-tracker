@@ -43,9 +43,9 @@ const adjustedPredictions = predict([
 ]);
 assert.equal(adjustedPredictions.length,1,'adjusted purchase history still forecasts across two dates');
 assert.equal(adjustedPredictions[0].qty,4,'physical returns reduce forecast quantity');
-assert.equal(adjustedPredictions[0].cost,80,'refunds reduce forecast purchase cost');
+assert.equal(adjustedPredictions[0].cost,60,'physical returns reduce consumption cost in proportion to retained quantity');
 assert.equal(predict([
  {id:201,item_name:'Oil',purchase_date:'2026-02-01',quantity:1,unit:'litre',amount:100,forecast_eligible:true},
  {id:202,item_name:'Oil',purchase_date:'2026-02-11',quantity:1,unit:'litre',amount:100,forecast_eligible:true}
-],[{purchase_id:202,quantity_returned:0,refund_amount:100,physically_returned:false}])[0].cost,50,'refund-only adjustment changes spend but does not remove quantity');
-console.log('EMS forecast tests passed: 19 assertions');
+],[{purchase_id:202,quantity_returned:0,refund_amount:100,physically_returned:false}])[0].cost,100,'refund-only adjustment changes spend but does not reduce estimated consumption cost');
+const fullyReturned = predict([\n {id:301,item_name:'Soap',purchase_date:'2026-02-01',quantity:1,unit:'piece',amount:20,forecast_eligible:true},\n {id:302,item_name:'Soap',purchase_date:'2026-02-05',quantity:1,unit:'piece',amount:20,forecast_eligible:true},\n {id:303,item_name:'Soap',purchase_date:'2026-02-20',quantity:1,unit:'piece',amount:20,forecast_eligible:true}\n],[{purchase_id:302,quantity_returned:1,refund_amount:20,physically_returned:true}]);\nassert.equal(fullyReturned.length,1,'fully returned purchase does not count as a consumption event');\nassert.equal(fullyReturned[0].count,2,'forecast counts only retained purchase dates');\nconsole.log('EMS forecast tests passed: 21 assertions');
