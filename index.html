@@ -246,6 +246,18 @@ function renderReport(){
  $('rCats').innerHTML=Object.entries(cats).sort((a,b)=>b[1]-a[1]).map(([k,v])=>'<div class="item"><div>'+esc(k)+'</div><div class="right">'+money(v)+'</div></div>').join('')||'<div class="empty">No purchases or refunds in this period.</div>';
  $('rUsed').innerHTML=Object.entries(items).sort((a,b)=>b[1]-a[1]).map(([k,v])=>'<div class="item"><div>'+esc(k)+'</div><div class="right">'+money(v)+'</div></div>').join('')||'<div class="empty">No purchases or refunds in this period.</div>';
 }$('runReport').onclick=renderReport;$('printReport').onclick=()=>{go('reports');window.print()};
+function retailerSearchLinks(query){
+ const q=encodeURIComponent(query);
+ const providers=[
+  ['Blinkit','https://www.google.com/search?q='+encodeURIComponent('site:blinkit.com '+query)],
+  ['Zepto','https://www.google.com/search?q='+encodeURIComponent('site:zeptonow.com '+query)],
+  ['Instamart','https://www.google.com/search?q='+encodeURIComponent('site:swiggy.com/instamart '+query)],
+  ['BigBasket','https://www.google.com/search?q='+encodeURIComponent('site:bigbasket.com '+query)],
+  ['Amazon India','https://www.amazon.in/s?k='+q],
+  ['Flipkart','https://www.flipkart.com/search?q='+q]
+ ];
+ return '<div class="small" style="margin-top:8px">Check current listings manually: '+providers.map(([name,url])=>'<a href="'+esc(url)+'" target="_blank" rel="noopener noreferrer" style="margin-right:10px">'+esc(name)+'</a>').join('')+'</div>';
+}
 $('comparePlan').onclick=()=>{
  const wanted=$('planText').value.split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
  if(!wanted.length){msg('planMsg','Enter at least one item, one per line.','error');return}
@@ -255,12 +267,12 @@ $('comparePlan').onclick=()=>{
   const q=norm(query), exact=purchases.filter(p=>norm(p.item_name)===q);
   const candidates=exact.length?exact:purchases.filter(p=>{const n=norm(p.item_name);return n.includes(q)||q.includes(n)}).filter(p=>norm(p.item_name).length>1);
   const identities=[...new Set(candidates.map(p=>String(p.item_name||'').trim()))];
-  if(!candidates.length){rows.push('<div class="linecard"><strong>'+esc(query)+'</strong><p class="small">No matching item in purchase history. Add a purchase first or check spelling.</p></div>');continue}
+  if(!candidates.length){rows.push('<div class="linecard"><strong>'+esc(query)+'</strong><p class="small">No matching item in purchase history. Add a purchase first or check spelling.</p>'+retailerSearchLinks(query)+'</div>');continue}
   const identityKey=p=>[p.item_name,p.brand,p.variant,p.pack_size].map(v=>String(v||'').trim().toLocaleLowerCase()).join('|');
   const identityGroups=[...new Map(candidates.map(p=>[identityKey(p),p])).values()];
   if((!exact.length&&identities.length!==1)||(exact.length&&identityGroups.length>1)){
    const labels=[...new Set(candidates.map(p=>[String(p.item_name||'').trim(),p.brand,p.variant,p.pack_size].filter(Boolean).join(' · ')))];
-   rows.push('<div class="linecard"><strong>'+esc(query)+'</strong><p class="small">Possible product identities — review these before comparing; EMS will not merge brands, variants or pack sizes automatically.</p>'+labels.map(n=>'<div class="item"><div>'+esc(n)+'</div></div>').join('')+'</div>');continue
+   rows.push('<div class="linecard"><strong>'+esc(query)+'</strong><p class="small">Possible product identities — review these before comparing; EMS will not merge brands, variants or pack sizes automatically.</p>'+labels.map(n=>'<div class="item"><div>'+esc(n)+'</div></div>').join('')+retailerSearchLinks(query)+'</div>');continue
   }
   const matches=candidates;
   const byShop=new Map();
@@ -276,7 +288,7 @@ $('comparePlan').onclick=()=>{
    const chosen=$('planMode').value==='lowest'?items.reduce((a,b)=>a.price<=b.price?a:b):items[items.length-1];
    return {shop,...chosen,identity:[chosen.p.brand,chosen.p.variant,chosen.p.pack_size].filter(Boolean).join(' · ')};
   }).sort((a,b)=>a.price-b.price);
-  rows.push('<div class="linecard"><strong>'+esc(query)+'</strong>'+options.map((x,i)=>'<div class="item"><div><strong>'+esc(x.shop)+'</strong><div class="small">'+(x.identity?esc(x.identity)+' · ':'')+esc(x.date)+' · per '+esc(x.unit)+(i===0?' · lowest historical reference':'')+'</div></div><div class="right">'+money(x.price)+'</div></div>').join('')+'</div>');
+  rows.push('<div class="linecard"><strong>'+esc(query)+'</strong>'+options.map((x,i)=>'<div class="item"><div><strong>'+esc(x.shop)+'</strong><div class="small">'+(x.identity?esc(x.identity)+' · ':'')+esc(x.date)+' · per '+esc(x.unit)+(i===0?' · lowest historical reference':'')+'</div></div><div class="right">'+money(x.price)+'</div></div>').join('')+'</div>'+retailerSearchLinks(query));
  }
  $('planResults').innerHTML=rows.join('');
  const selectedLocation=locations.find(x=>String(x.id)===$('planLocation').value);
