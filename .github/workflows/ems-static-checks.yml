@@ -30,6 +30,8 @@ jobs:
         run: node tests/adjustment-engine.test.cjs
       - name: Run receipt reconciliation engine tests
         run: node tests/receipt-engine.test.cjs
+      - name: Run CSV backup serializer tests
+        run: node tests/backup-engine.test.cjs
       - name: Run app contract checks
         run: node tests/app-contract.test.cjs
       - name: Check inline application JavaScript syntax
@@ -82,4 +84,6 @@ jobs:
           test -s tests/app-contract.test.cjs
           test -s receipt-engine.js
           test -s tests/receipt-engine.test.cjs
+          test -s backup-engine.js
+          test -s tests/backup-engine.test.cjs
           echo "Required app, setup, documentation and test files exist"
