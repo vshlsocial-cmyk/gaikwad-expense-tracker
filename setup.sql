@@ -169,7 +169,7 @@ returns integer language plpgsql security invoker set search_path = public as $$
 declare v_purchase_id bigint; v_removed integer := 0; v_rows integer := 0;
 begin
   if auth.uid() is null then raise exception 'Authentication required'; end if;
-  if p_retention_days not in (7, 30, 90) then raise exception 'Retention must be 7, 30, or 90 days'; end if;
+  if p_retention_days is null or p_retention_days not in (7, 30, 90) then raise exception 'Retention must be 7, 30, or 90 days'; end if;
   for v_purchase_id in
     select p.id from public.purchases p
     where p.user_id = auth.uid() and p.deleted_at is not null
