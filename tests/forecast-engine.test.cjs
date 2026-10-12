@@ -43,7 +43,7 @@ const adjustedPredictions = predict([
 ]);
 assert.equal(adjustedPredictions.length,1,'adjusted purchase history still forecasts across two dates');
 assert.equal(adjustedPredictions[0].qty,4,'physical returns reduce forecast quantity');
-assert.equal(adjustedPredictions[0].cost,60,'physical returns reduce consumption cost in proportion to retained quantity');
+assert.equal(adjustedPredictions[0].cost,80,'median consumption cost reflects the partially returned purchase');
 assert.equal(predict([
  {id:201,item_name:'Oil',purchase_date:'2026-02-01',quantity:1,unit:'litre',amount:100,forecast_eligible:true},
  {id:202,item_name:'Oil',purchase_date:'2026-02-11',quantity:1,unit:'litre',amount:100,forecast_eligible:true}
